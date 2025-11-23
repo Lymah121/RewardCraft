@@ -1,0 +1,794 @@
+TrainYourSnakeAI: A Novel Tool to Teach Reinforcement
+Learning to Middle School Students
+Cesar Hinojosa∗
+
+Priyanka Kumar∗
+
+The University of Texas at San Antonio
+San Antonio, Texas, United States
+cesar.hinojosa@my.utsa.edu
+
+The University of Texas at San Antonio
+San Antonio, Texas, United States
+priyanka.kumar@utsa.edu
+The University of Texas Permian Basin
+Odessa, Texas, United States
+kumar_p@utpb.edu
+
+Pragathi Durga Rajarajan
+
+Fred Martin
+
+The University of Texas at San Antonio
+San Antonio, Texas, United States
+pragathidurga.rajarajan@my.utsa.edu
+
+The University of Texas at San Antonio
+San Antonio, Texas, United States
+fred.martin@utsa.edu
+
+Abstract
+
+Keywords
+
+Artificial Intelligence (AI) is growing rapidly in our society and
+is now apparent in our day-to-day lives. With the recent burst
+of interest in AI, many individuals and children may view AI as
+something mystic and magical. It is important to demystify and
+introduce to them how AI is made and works. To address this need,
+we developed a software application that allows children to specify
+the parameters used by a Reinforcement Learning (RL) algorithm.
+Then students experience how RL is used to train an AI model
+to play the game “Snake.” This software tool was tested with 71
+middle school-age students. Here, we describe the design of the
+TrainYourSnakeAI application, the approach we used to introduce
+the associated ideas to middle school children, and how we assessed
+student learning. Qualitative data collected from students are presented and discussed. We surveyed their knowledge of AI before
+and after using the application. In this work, our research questions
+were: (RQ1) How can we create an engaging tool to teach reinforcement learning? and (RQ2) Does using our application foster a
+stronger understanding of reinforcement learning in children? Our
+findings indicate that students were able to understand the functionality of reward functions and how agents can learn from the
+environment using the concept of RL. We found that out of the 51
+students who were not previously familiar with RL, 40 were able to
+provide adequate descriptions of RL after using TrainYourSnakeAI.
+
+Reinforcement learning, reward function, AI literacy, game-based
+learning, qualitative and quantitative data analysis
+ACM Reference Format:
+Cesar Hinojosa, Priyanka Kumar, Pragathi Durga Rajarajan, and Fred Martin.
+2025. TrainYourSnakeAI: A Novel Tool to Teach Reinforcement Learning to
+Middle School Students. In Proceedings of the 56th ACM Technical Symposium
+on Computer Science Education V. 1 (SIGCSE TS 2025), February 26-March
+1, 2025, Pittsburgh, PA, USA. ACM, New York, NY, USA, 7 pages. https:
+//doi.org/10.1145/3641554.3701907
+
+1
+
+Introduction and Motivation
+
+In today’s rapidly evolving world, artificial intelligence (AI) is becoming an integral part of daily life [10, 19], influencing even our
+children’s early interactions through platforms like social media,
+games, Alexa, Bixby, and Siri, etc. Thus, the younger generation
+needs to understand, assess, and familiarize themselves with AI systems [11, 24]. This knowledge can help them evaluate information,
+improve computational thinking skills, and prepare for future job
+markets [2, 12].
+AI education can foster critical thinking and problem-solving
+skills. With the usage of AI concepts, students can learn to analyze
+complex problems, break them down into manageable components,
+and devise creative solutions. This analytical mindset nurtures their
+ability to adapt to various challenges, which is a crucial skill in
+an era defined by uncertainty and rapid change. In addition, AI
+education cultivates digital literacy and technological fluency. In an
+increasingly digital world, understanding the fundamentals of AI
+empowers students to navigate and harness technology effectively.
+By exploring AI applications and concepts, students are inspired to
+think outside the box and develop innovative solutions to real-world
+problems.
+In this paper, we describe the design and implementation of the
+TrainYourSnakeAI game for Artificial Intelligence (AI) education
+and more specifically on Reinforcement Learning (RL). Our application allows middle school students to learn about RL by training an
+agent to play the game Snake. Students can see how their training
+
+CCS Concepts
+• Social and professional topics → K-12 education; • Humancentered computing → Interactive systems and tools; • Applied computing → Interactive learning environments; • Computing methodologies → Knowledge representation and reasoning.
+∗ Cesar and Priyanka contributed equally to this research.
+
+This work is licensed under a Creative Commons Attribution
+International 4.0 License.
+SIGCSE TS 2025, February 26-March 1, 2025, Pittsburgh, PA, USA
+© 2025 Copyright held by the owner/author(s).
+ACM ISBN 979-8-4007-0531-1/25/02
+https://doi.org/10.1145/3641554.3701907
+
+506
+
+SIGCSE TS 2025, February 26-March 1, 2025, Pittsburgh, PA, USA
+
+Cesar Hinojosa, Priyanka Kumar, Pragathi Durga Rajarajan, and Fred Martin
+
+data causes an agent to learn from the environment. The idea behind this is that through our web-based application, every student
+gets the opportunity to become a future-ready AI-literate citizen.
+
+2
+
+where children could view an RL agent navigating through a grid
+while avoiding obstacles and eating food. This work demonstrates
+that visualization of RL can be a good way to introduce children to
+AI.
+Dietz et al. created ARtonomous, an iPad application that introduced middle school students to RL using virtual robotics [5].
+ARtonomous allows children to view virtual autonomous vehicles
+using RL to explore various tracks. After testing ARtonomous with
+middle school students, they found that it ignited student curiosity
+about RL/AI.
+It is observed that the students were engaged through these
+projects and tools, and they increased curiosity among middle
+school children to further explore RL. Both PlayGrid and ARtonomous introduce children to RL using visualizations. We adopted
+a more interactive approach, similar to ArtBot. TrainYourSnakeAI
+introduces children to reward functions, a critical component of
+RL algorithms, through the simple and familiar Snake game. We
+decided to use a game most children are familiar with to add excitement and keep them engaged. Additionally, TrainYourSnakeAI
+collects quantitative data while users play the game, addressing a
+gap in many previous studies which primarily use qualitative data
+to measure student learning outcomes.
+
+Related Work
+
+Integrating AI education into K-12 education is becoming increasingly necessary due to how AI is becoming more commonly used in
+various fields. For example, AI in the education field can help personalize learning, letting students learn at their speed and meeting
+their specific needs.
+As such, AI researchers for K-12 working group developed an
+online resource directory for teachers with access to AI-related
+videos, demonstrations, software, and activity descriptions that
+they can integrate into their lesson plans [13, 22] and designed
+AI technologies centered on learners that foster increased user
+understanding of AI [12]. Recently, Shuchi Grover introduced the
+early AI and CS education efforts in K-12 AI education, highlighted
+critical design issues, and offered guidance for future initiatives to
+effectively integrate AI learning into K-12 curricula [3, 8].
+In the literature, many game-based applications [13, 29] and
+tools [14] were introduced, like a social robot-based application [5],
+game-based approach [18, 25], and a block-based programming
+tool [7] to teach students aged 10–16 with focused AI concepts
+through interactive and project-based learning activities [15] in
+K-12 education.
+There has been a growing interest in teaching Reinforcement
+Learning (RL) specifically at various educational levels, from elementary school to undergraduate studies. The AI4K12 guidelines
+emphasize the importance of “Learning” within the “Five Big Ideas
+in AI,” including reinforcement learning as a key machine learning concept for grades 9-12, where students learn how algorithms
+adjust internal models through environmental interaction and feedback, highlighting the necessity of teaching RL to K-12 students [1].
+Many researchers have explored methods to introduce RL using
+accessible tools and activities tailored for teenagers [15]. Furthermore, RL can also be used in various applications and fields which
+demonstrates the increasing significance of AI literacy [23, 27].
+In recent years, RL has been introduced through digital game
+designs. For example, Voulgari et al.’s work on ArtBot teaches students at the primary and middle school level to explore the impact
+of parameters, rewards, and training data on the learned behavior
+of AI agents through these games [25, 28]. The ArtBot game is designed to introduce two important concepts: supervised learning
+and RL. The first part of this game introduces supervised learning
+by allowing the player to train an AI helper to find art objects.
+During the second part of the game, players, along with their AI
+helper, navigate dungeons to collect stolen art objects, learning
+RL concepts by assigning rewards to objects and avoiding traps,
+adjusting parameters like exploration and exploitation rates, and
+observing the AI’s behavior using a Q-learning algorithm on an
+8x8 grid while modifying reward settings with sliders. This work
+demonstrates an interactive approach to introduce children to RL.
+Quiloan et al.’s work on the PlayGrid project developed three
+prototypes to teach RL to children, with a focus on creating tools
+that can benefit young children who may not have coding knowledge [18]. PlayGrid’s final prototype involved a hardware device
+
+3
+
+Design of TrainYourSnakeAI Game
+
+Our web application exposes children to RL. We chose RL because
+we thought it would be an intuitive concept for students to understand, while also showing them an important concept in AI. While
+designing our application, we kept in mind two of the “Five Big
+Ideas in AI” [22]: Representation and Reasoning, and Learning. The
+main idea of our software is for children to train their own AI to
+play the game Snake and observe how the snake reacts based off
+different reward functions specified by the user.
+
+3.1
+
+Game-play
+
+Our application first asks the user to input their first name, last
+initial, and grade level to capture data. We then give them a brief
+introduction to RL. Then, the children are asked to briefly play the
+Snake game themselves. Finally, they are taken to a page called the
+“Training Arena” where they can play around with different reward
+functions for the snake and train it in different ways.
+3.1.1 Introduction to RL. Once the child enters their information,
+they are taken to a page where they are briefly introduced to RL.
+This page has text explaining that “If you reward a chicken when
+it does a back flip, it will do more back flips. Also, if you punish a
+chicken when it misbehaves, it won’t misbehave as often. Think
+of training your AI like this. This method is called RL. You will
+be training your AI to play the game Snake. But first. . . Play the
+snake game yourself!.” Additionally, we added an image of a chick
+to this page to grab the attention of the children and make the
+software more playful and relaxed. The introduction paragraph is
+not a formal definition of RL by any means but compares RL to
+how a chicken (or any biological organism) learns. The idea was to
+provide an easy-to-understand and intuitive definition for children,
+while not straying from the formal definition.
+
+507
+
+TrainYourSnakeAI: A Novel Tool to Teach Reinforcement Learning to Middle School Students
+
+SIGCSE TS 2025, February 26-March 1, 2025, Pittsburgh, PA, USA
+
+Figure 2: Snake AI with a high score
+• when the snake stays alive, I want to blank
+• when the snake dies, I want to blank
+There is a drop down box for each question where the user chooses
+one of three options to fill in the blank; the options are as follows:
+“reward it", “leave it alone” and “punish it.” An example response is
+as follows:
+• when the snake gets a point, I want to reward it
+We chose this fill-in-the-blank format to provide the user with as
+much context as possible.
+Once the user makes their selections and clicks “Train,” the fillin-the-blank values “reward it", “leave it alone” and “punish it” are
+translated to a +10, 0, or -10 respectively. They are then fed into a
+brand-new RL agent. This agent will train for a total of 100 games.
+The fill-in-the-blank values are given to the agent’s game state
+vector, which is used by the AI agent to represent its environment.
+The training happens in real-time, and the user is able to see the
+training on the screen. In this way, the children can see the effect
+of their reward functions on the agent’s behavior. If the children
+train the AI correctly, it would be as follows:
+• when the snake gets a point, I want to reward it
+• when the snake stays alive, I want to leave it alone
+• when the snake dies, I want to punish it
+The snake would begin to do well around game 75. After this, it
+becomes clear that the user has correctly trained the agent as the
+snake can reach scores above 40 as shown in Figure 2.
+On the other hand, the user can provide a negative configuration
+as show below:
+• when the snake gets a point, I want to reward it
+• when the snake stays alive, I want to reward it
+• when the snake dies, I want to punish it
+The agent then begins to learn that by staying alive, it receives a
+reward and chooses to go in circles instead of going for the food.
+The user is able to witness this behavior that comes as a direct
+result of how they trained it.
+If the user decides to go for a very negative configuration, it
+could be as follows:
+• when the snake gets a point, I want to punish it
+• when the snake stays alive, I want to leave it alone
+
+Figure 1: Training Arena
+3.1.2 Snake. The Snake game with RL involves an agent that
+learns to play by interacting with the game environment, receiving
+rewards and penalties, and continuously improving its strategy
+through repeated play and learning algorithms [21, 26].
+The game environment includes the snake, food, and the game
+board. The snake’s objective is to eat the food that appears randomly
+while avoiding collisions with itself and the board’s boundaries.
+An RL agent learns to play the game by interacting with the environment, receiving the current state, and taking actions (moving
+up, down, left, or right). The agent gets rewards for eating food
+and penalties for collisions. It develops a policy to choose actions
+based on the state and uses algorithms such as Q-learning to learn
+and improve its policy over time. By playing numerous games and
+updating its policy, the agent learns to make better decisions, such
+as finding efficient paths to the food and avoiding collisions.
+Nokia is well known for including the Snake game on its phones
+starting in 1997 [4]. Though the game’s concept dates back to arcade
+games in the 1970s, the Nokia version played a key role in popularizing it globally [6, 16]. The highly successful Nokia 3310, launched
+in late 2000, further cemented Snake’s iconic status. The game became a cultural phenomenon and has inspired many remakes and
+adaptations for modern devices[20].
+We decided to let the children play the Snake game themselves
+for those who are not familiar with it or who have not played it
+recently.
+3.1.3 Training the AI. The “Training Arena” (shown in Figure 1) is
+where the core of our application lies.
+The user sees a familiar box, which is identical to the rectangle
+screen in the previous page where the user played Snake. However,
+this time they are prompted with three fill-in-the-blank questions.
+The questions read as follows:
+• when the snake gets a point, I want to blank
+
+508
+
+SIGCSE TS 2025, February 26-March 1, 2025, Pittsburgh, PA, USA
+
+Cesar Hinojosa, Priyanka Kumar, Pragathi Durga Rajarajan, and Fred Martin
+
+Table 1: Grade level distribution of the participants
+
+• when the snake dies, I want to reward it
+The user can see that the snake begins to learn that by dying, it
+receives a reward. Therefore, after a few games, the snake simply
+goes straight for the wall and ends the game intentionally.
+Our application helps children understand that after exploring
+its environment, the agent will perform actions based on what the
+user defined as the reward functions. The children will see that the
+agent increasingly tries to get rewarded and avoid punishment as
+it learns.
+
+3.2
+
+Grade Level
+6
+7
+8
+
+Percentage
+32.4
+42.3
+25.4
+
+IRB approval for this work and we obtained parental consent and
+student assent.
+
+Technical Details
+
+Our application is built with Python using Flask as our web framework with a SQLite database.
+The RL agent that we used is from [17] with some modifications. By dynamically changing the agent’s reward functions (i.e.,
+a variable for reward, a variable for staying alive, and a variable
+for dying), the AI exhibits a drastic change in the learned behavior,
+and we used this as the premise of our application.
+To provide an overview on the technical aspects of the AI agent
+being used in our software: A state vector representing the current
+snake’s environment is given to the model’s predict function, where
+we are given back an action to take, also a vector. This action is
+then performed inside the game and the result is evaluated. There
+is now a different state vector for the environment, since an action
+was just performed inside the game.
+The model then updates based off of these variables so that the
+next time it is called to predict, it now has more information on
+the best move to take. The model uses a Feed First Neural Network
+with 11 input variables (a state vector representing the current
+environment), 256 hidden layers, and 3 output layers (the action
+vector giving us the optimal action to take). This model is trained
+repeatedly, with the goal to train it sufficiently to where you provide
+a current environment (state vector with 11 values) and it will give
+you an optimal action to take (action vector with three values)
+based off its environment.
+When the user initializes a training, the AI agent begins training
+on the server side. We facilitate the real time communication from
+the server to the client with web sockets. Streams of data are sent
+from our backend to a JavaScript frontend, allowing the user to see
+the training process in real time.
+The source code for our application can be found at [9].
+
+4
+
+Number of Students
+23
+30
+18
+
+4.1
+
+Learning Activities
+
+In our table for this software, we had four computers running our
+application locally. The authors spent time with the children discussing the software and provided guidance if needed. The children
+were first briefly introduced to the application by one of the authors. Afterwards, they started using the application. Once they
+were done, the children completed the post-survey form.
+
+4.2
+
+Data Gathered
+
+We collected data from the following sources: pre-survey, postsurvey, screen/audio recording, and automated data collection from
+our software. The pre-survey consisted of a universal questionnaire
+that was filled out by all the students who participated in the “AI
+expo” study. The pre-survey consisted of questions that gathered
+data on their current understanding of AI. The post-survey we
+used was designed specifically for our application and was given to
+only the students who interacted with our software. Screen/audio
+recordings recorded participant interaction with our application;
+however, these were not used in the analysis of our research. Finally,
+we also gathered application-specific data by saving the following
+information into our database: user information and metrics on the
+AI models (snakes) that the user created. The application-specific
+data provided statistical information on the use of our application,
+not student learning.
+
+5
+
+Results
+
+We focused primarily on the results of the post-survey because we
+believe that they brought the most insight from the different sources
+of data we gathered. Moreover, we also connected the pre-survey
+data to the post-survey data to evaluate the conceptual difference
+in understanding RL.
+
+Study Design
+
+This web-based application TrainYourSnakeAI was tested at a public
+STEM charter school in a major city in the state of Texas. The
+participants were middle school students (in 6th through 8th grade)
+who signed up and attended the after-school sessions. There was
+a total of 122 participants. However, of those 122 children, only
+71 of them used our software due to time constraints. This study
+consisted of two 3-hour sessions over the course of two days. This
+research took place in what we called an “AI expo,” where there
+were seven applications (including TrainYourSnakeAI ) that exposed
+children to different concepts in AI. There were usually 3-7 students
+per table where an application was being demoed. Once the children
+were done using a project, they would rotate on to the next one.
+Each student used the software for about 5-10 minutes. We have
+
+5.1
+
+(RQ1) How can we create an engaging tool to
+teach reinforcement learning?
+
+Our research study was aimed at introducing AI concepts to children and we believe it was also important to try and ignite curiosity
+and excitement along the way. The results of the first item of the
+post-survey questionnaire (shown in Figure 2) were used to measure student satisfaction with our application. 81.7% of the students
+responded “Yes,” that they had fun training their own AI.
+
+509
+
+TrainYourSnakeAI: A Novel Tool to Teach Reinforcement Learning to Middle School Students
+
+Table 2: Responses to the post-survey item "Did you have fun
+training your own AI?" The options were "Yes," "Meh," and
+"No."
+Selected Response
+Yes
+Meh
+No
+
+Percentage
+81.7%
+18.3%
+0%
+
+SIGCSE TS 2025, February 26-March 1, 2025, Pittsburgh, PA, USA
+
+Table 3: “No RL” group describing RL
+
+Count of Students
+58
+13
+0
+
+Codes
+
+Number of responses
+
+Total
+Reward and/or punishment
+Natural learning
+Fun
+Off-Topic/No Response
+
+51
+21
+19
+4
+7
+
+Table 4: “RL” group describing RL
+
+When did you think you should reward the snake?
+60
+
+Count of Students
+
+40
+
+20
+
+When it eats the
+food., When it stays
+alive.
+
+When it stays alive.
+
+When it dies.
+
+Selections
+
+Figure 3: Responses to “When did you think you should reward the snake?”
+
+5.2
+
+Number of responses
+
+Total
+Reward and/or punishment
+Natural learning
+Fun
+Off-Topic/No Response
+
+20
+8
+10
+0
+2
+
+• Natural learning: The response came in the form of analogy,
+more specifically comparing RL to the learning of biological
+organisms. We considered these responses accurate.
+• Fun: Rather than answering the question as intended, the
+children expressed their feelings toward performing RL on
+an AI agent.
+• Off-topic/No Response: Responses that were off-topic, inaccurate, or empty.
+The following are some examples of responses from children
+that fell into each of these four categories:
+• Reward and/or punishment: “RL is teaching a machine to
+know what to do more (which is good) and what to do
+less (which is not good) by giving them rewards when they
+achieve something.”
+• Natural learning: “giving a dog a treat when he behaves and
+saying bad when he misbehaves”
+• Fun: “interesting and cool”
+• Off-Topic/No Response: “Idk”
+We separated the children’s data into two groups: those previously familiar with RL and those who were not already familiar with
+RL. We separated the children’s data based on their answers to the
+following pre-survey multiple-choice question: “I am familiar with
+these specific AI concepts (check any that apply).” If the child selected
+“RL” as an answer, they were grouped into the “RL” category, and
+those who did not mark “RL” were added to the “No RL” category.
+We found that 51 out of the 71 students were not previously familiar
+with RL. We analyzed the results of our open-ended question with
+the “No RL” group to identify if they could accurately describe the
+AI concept after using our application.
+Of the 51 students previously unfamiliar with RL, the 21 responses fell into the category “reward and/or punishment” and 19
+fell into “natural learning.” In this group, four responses fell into the
+category “fun,” and seven responses fell into “off-topic/no response.”
+We performed a Fisher’s Exact test on the results in Tables 3 and
+4 to see whether there is an association between previous knowledge of RL and performance on this open-ended post-survey item.
+
+0
+When it eats the food.
+
+Codes
+
+(RQ2) Does using our application foster a
+stronger understanding of reinforcement
+learning in children?
+
+To measure the student’s understanding of RL, we first analyzed
+the responses to “When did you think you should reward the snake?
+(choose any number of options).” The correct answer to this item is
+“when it eats the food.” Students were allowed to choose multiple
+responses and 54 correctly selected only the correct answer, as
+shown in Figure 3. An additional 14 students selected “when eating
+the food,” but also incorrectly selected “when it stays alive.”
+Also, another item asked, “Do you think RL is similar to how a
+dog learns?” We found that 64 of the 71 students reported that RL
+is similar to how a dog learns. We are aware that this question
+could have been positively biased given the introduction of RL that
+was provided to them in the “Introduction” page of our application.
+However, we believe that it was a combination of all the aspects of
+our software that instantiated these responses.
+Next, we directly mapped our final post-survey item “I would
+describe RL as...” to pre-survey responses as we felt the combination
+of the open-ended nature of this question and the data from the
+pre-survey would provide insight. The open-ended responses were
+coded into four categories as follows:
+• Reward and/or punishment: This is the most accurate of
+the four categories. The children answered the question correctly by describing RL with the keywords reward and/or
+punishment.
+
+510
+
+SIGCSE TS 2025, February 26-March 1, 2025, Pittsburgh, PA, USA
+
+Cesar Hinojosa, Priyanka Kumar, Pragathi Durga Rajarajan, and Fred Martin
+
+For each group, the responses in the categories “reward and/or
+punishment” and “natural learning” were classified as correct and
+responses in “fun” and “off-topic/no response” were classified as
+incorrect. As such, there were 40 correct responses and 11 incorrect responses in the “No RL” group, and there were 18 correct
+and 2 incorrect responses in the “RL” group. The Fisher’s Exact
+test yielded a p-value of 0.326, indicating there is not a significant
+association between previous knowledge of RL and the correctness
+of the response to the open-ended item.
+
+6
+
+Discussion
+
+Overall, most students had fun interacting with TrainYourSnakeAI
+as indicated by the responses to the post-survey item “Did you have
+fun training your own AI?” Most of the students (81.7%) responded
+that they had fun. Furthermore, none of the students responded
+“no.” This suggests that most of the students enjoyed interacting
+with our application.
+As seen in Table 3, from the “No RL” group, 21 students were
+able to accurately describe RL using the keywords rewards and/or
+punishment. We also found that 19 children compared RL to the
+natural learning process of biological organisms. We include those
+19 children as having described RL accurately. The purpose of our
+application was to expose to children RL and we found that 40 of
+the students who were not previously familiar with the AI concept
+were able to describe it to a certain extent. If we move our attention
+to the category “RL” (students who were already familiar with RL
+before interacting with our application), we see that there were a
+total of 18 students who accurately described RL out of 20.
+We performed a Fisher’s Exact test for the results because the
+data did not fulfill the conditions of the two-proportion z-test. The
+results indicated that there were no significant differences between
+the “RL” and “No RL” groups. Therefore, it seems that both groups
+gave similar amounts of responses in regard to accurately describing
+RL. We believe that there can be no concrete conclusions with
+comparing the tables of data. The pre-survey question used to
+categorize if the child was familiar with RL was “yes or no” fashion.
+More insight would have been achieved if the question had been in
+the open-ended manner of the post-survey question used to describe
+RL as shown in Tables 3 and 4 to truly gauge their knowledge of
+the AI concept. However, if we focus on children unfamiliar with
+RL beforehand, there was a significant amount of them who gave
+an accurate definition of RL post-application use. Although the
+concept of RL and reward functions might still be abstract to these
+individuals, we believe that this application provided them with an
+intuition in this AI concept.
+
+7
+
+Figure 4: “What the Snake AI is Thinking” panel added to
+Training Arena
+
+version of our application needs to be tested with more students
+before we have meaningful results.
+This is an ongoing work. This updated version of our application
+needs to be tested with additional students to determine its impact
+on their learning. We also wish to increase the sample size of in a
+future study to better understanding student learning impacts.
+Furthermore, we can also integrate other RL concepts and make
+the application available through web browsers to make it even
+more informative for children and easy to use for K-12 teachers.
+
+8
+
+Conclusion
+
+In this work, we introduced Reinforcement Learning to middle
+school children by giving them the opportunity to train their own
+AI model. Although we cannot conclude that there was any concrete
+difference in understanding AI concepts, we can observe that 40
+out of the 51 children not previously familiar with RL were able to
+accurately describe it after using our software. Additionally, most
+of the students indicated that they enjoyed training their own AI
+using this TrainYourSnakeAI application. This work is part of an
+effort to expose children to AI education and AI literacy.
+Overall, while RL is a complex subject, efforts to introduce it at
+various educational levels are increasing, supported by initiatives
+that provide age-appropriate, engaging, and accessible learning
+experiences. These initiatives highlight the importance of early
+exposure to AI concepts to build a foundation for future learning
+and innovation in the field.
+
+Ongoing and Future Work
+
+Acknowledgments
+
+During the conduct of this TrainYourSnakeAI application with middle school students, we recognized that the Snake RL agent did
+not show visible improvement until about iteration 75 of 100 of
+the training epoch. To mitigate this limitation, we added a live
+visualization of the state of the game as viewed by the RL agent,
+so that participants can see what the AI snake is “thinking” as it is
+being trained. A “This is what the snake AI is thinking” panel was
+added to the user interface of the “Training Arena” (Figure 4). This
+
+All work was conducted at the University of Texas at San Antonio.
+We would like to thank Bridgett Parker, Head of School at BASIS
+San Antonio Shavano Campus, for supporting our work with her
+students. We thank our peer researchers in the UTSA Spring 2024
+course, “Developing AI Tools for Children,” for their feedback during the development of our application This material is based upon
+work supported by the National Science Foundation under Grant
+No. IIS-2112633.
+
+511
+
+TrainYourSnakeAI: A Novel Tool to Teach Reinforcement Learning to Middle School Students
+
+References
+
+SIGCSE TS 2025, February 26-March 1, 2025, Pittsburgh, PA, USA
+
+Springer International Publishing, Cham, 9–19. https://doi.org/10.1007/978-3031-18880-0_2
+[16] James J. (Jong Hyuk) Park, Yi Pan, Gangman Yi, and Vincenzo Loia (Eds.). 2017.
+Finding Comfortable Settings of Snake Game Using Game Refinement Measurement.
+Springer Singapore, Singapore.
+[17] Michael Seguin Patrick Loeber. 2023. A GitHub repository for snake-ai-pytorch.
+https://github.com/patrickloeber/snake-ai-pytorch
+[18] R. Quiloan, S. Moosavi, R. Tankelevich, and M. Karlin. 2023. PlayGrid: Sparking
+AI Literacy with an Intuitive and Accessible Learning Interface. In 2023 Fifth
+International Conference on Transdisciplinary AI (TransAI). IEEE Computer Society,
+Los Alamitos, CA, USA, 171–178. https://doi.org/10.1109/TransAI60598.2023.
+00045
+[19] Alpay Sabuncuoglu. 2020. Designing One Year Curriculum to Teach Artificial
+Intelligence for Middle School. In Proceedings of the 2020 ACM Conference on
+Innovation and Technology in Computer Science Education (Trondheim, Norway)
+(ITiCSE ’20). Association for Computing Machinery, New York, NY, USA, 96–102.
+https://doi.org/10.1145/3341525.3387364
+[20] David Silver, Thomas Hubert, Julian Schrittwieser, Ioannis Antonoglou, Matthew
+Lai, Arthur Guez, Marc Lanctot, Laurent Sifre, Dharshan Kumaran, Thore Graepel, Timothy Lillicrap, Karen Simonyan, and Demis Hassabis. 2017. Mastering
+Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm.
+arXiv:1712.01815 [cs.AI] https://arxiv.org/abs/1712.01815
+[21] Jaakko Suominen. 2016. How to Present the History of Digital Games: Enthusiast,
+Emancipatory, Genealogical, and Pathological Approaches. Games and Culture
+12 (06 2016). https://doi.org/10.1177/1555412016653341
+[22] David Touretzky, Christina Gardner-McCune, Fred Martin, and Deborah Seehorn.
+2019. Envisioning AI for K-12: What Should Every Child Know about AI? (Jul.
+2019), 9795–9799. https://doi.org/10.1609/aaai.v33i01.33019795
+[23] Avraam Tsantekidis, Nikolaos Passalis, Anastasia-Sotiria Toufa, Konstantinos
+Saitas-Zarkias, Stergios Chairistanidis, and Anastasios Tefas. 2021. Price Trailing
+for Financial Trading Using Deep Reinforcement Learning. IEEE Transactions on
+Neural Networks and Learning Systems 32, 7 (2021), 2837–2846. https://doi.org/
+10.1109/TNNLS.2020.2997523
+[24] Jessica Van Brummelen, Tommy Heng, and Viktoriya Tabunshchyk. 2021. Teaching Tech to Talk: K-12 Conversational Artificial Intelligence Literacy Curriculum
+and Development Tools. Proceedings of the AAAI Conference on Artificial Intelligence 35 (May 2021), 15655–15663. https://doi.org/10.1609/aaai.v35i17.17844
+[25] Iro Voulgari, Marvin Zammit, Elias Stouraitis, Antonios Liapis, and Georgios
+Yannakakis. 2021. Learn to Machine Learn: Designing a Game-Based Approach
+for Teaching Machine Learning to Primary and Secondary Education Students.
+In Proceedings of the 20th Annual ACM Interaction Design and Children Conference
+(Athens, Greece) (IDC ’21). Association for Computing Machinery, New York,
+NY, USA, 593–598. https://doi.org/10.1145/3459990.3465176
+[26] Zhepei Wei, Di Wang, Ming Zhang, Ah-Hwee Tan, Chunyan Miao, and You Zhou.
+2018. Autonomous Agents in Snake Game via Deep Reinforcement Learning. In
+2018 IEEE International Conference on Agents (ICA). 20–25.
+[27] Chao Yu, Jiming Liu, Shamim Nemati, and Guosheng Yin. 2021. Reinforcement
+Learning in Healthcare: A Survey. ACM Comput. Surv. 55, 1 (nov 2021). https:
+//doi.org/10.1145/3477600
+[28] Marvin Zammit, Iro Voulgari, Antonios Liapis, and Georgios N Yannakakis. 2021.
+The road to AI literacy education: from pedagogical needs to tangible game
+design. Academic Conferences International.
+[29] Na Zhang, Jinghan Xu, Xifeng Zhang, and Yifang Wang. 2023. Social robots
+supporting children’s learning and development: Bibliometric and visual analysis.
+Education and Information Technologies (2023), 1–28.
+
+[1] ai4k12.org. 2020. AI4K12. https://ai4k12.org AI4K12.
+[2] Bita Akram, Spencer Yoder, Cansu Tatar, Sankalp Boorugu, Ifeoluwa Aderemi,
+and Shiyan Jiang. 2022. Towards an AI-Infused Interdisciplinary Curriculum
+for Middle-Grade Classrooms. Proceedings of the AAAI Conference on Artificial
+Intelligence 36, 11 (Jun. 2022), 12681–12688. https://doi.org/10.1609/aaai.v36i11.
+21544
+[3] Safinah Ali, Blakeley H Payne, Randi Williams, Hae Won Park, and Cynthia
+Breazeal. 2019. Constructionism, ethics, and creativity: Developing primary
+and middle school artificial intelligence education. In International workshop on
+education in artificial intelligence k-12 (EDUAI’19), Vol. 2. MIT Media Laboratory,
+Cambridge, MA, 1–4.
+[4] Ayla Angelos. 2021. The history of Snake: How the Nokia game defined a new era
+for the mobile industry. https://www.itsnicethat.com/features/taneli-armantothe-history-of-snake-design-legacies-230221
+[5] Griffin Dietz, Jennifer King Chen, Jazbo Beason, Matthew Tarrow, Adriana
+Hilliard, and R. Benjamin Shapiro. 2022. ARtonomous: Introducing Middle School
+Students to Reinforcement Learning Through Virtual Robotics. In Proceedings of
+the 21st Annual ACM Interaction Design and Children Conference (Braga, Portugal)
+(IDC ’22). Association for Computing Machinery, New York, NY, USA, 430–441.
+https://doi.org/10.1145/3501712.3529736
+[6] Alexiei Dingli, Alexander Pfeiffer, Alesha Serada, Mark Bugeja, and Stephen
+Bezzina (Eds.). 2022. Exploring Reinforcement Learning: A Case Study Applied
+to the Popular Snake Game. Springer International Publishing, Cham.
+[7] Chris-Bennet Fleger, Yousuf Amanuel, and Johannes Krugel. 2023. Learning Tools
+Using Block-based Programming for AI Education. In 2023 IEEE Global Engineering Education Conference (EDUCON). 1–5. https://doi.org/10.1109/EDUCON54358.
+2023.10125154
+[8] Shuchi Grover. 2024. Teaching AI to K-12 Learners: Lessons, Issues, and Guidance (SIGCSE 2024). Association for Computing Machinery, New York, NY, USA,
+422–428. https://doi.org/10.1145/3626252.3630937
+[9] Cesar Hinojosa and Pragathi Durga Rajarajan. 2024. TrainYourSnakeAI GitHub
+Repository. https://github.com/cesarihinojosa/train-your-ai
+[10] Clifford H. Lee, Nimah Gobir, Alex Gurn, and Elisabeth Soep. 2022. In the Black
+Mirror: Youth Investigations into Artificial Intelligence. ACM Trans. Comput.
+Educ. 22, 3, Article 25 (oct 2022), 25 pages. https://doi.org/10.1145/3484495
+[11] Irene Lee, Safinah Ali, Helen Zhang, Daniella DiPaola, and Cynthia Breazeal.
+2021. Developing middle school students’ AI literacy. In Proceedings of the 52nd
+ACM technical symposium on computer science education. 191–197.
+[12] Duri Long and Brian Magerko. 2020. What is AI Literacy? Competencies and
+Design Considerations. In Proceedings of the 2020 CHI conference on human factors
+in computing systems (Honolulu, HI, USA) (CHI ’20). Association for Computing
+Machinery, New York, NY, USA, 1–16. https://doi.org/10.1145/3313831.3376727
+[13] Vaishali Mahipal, Srija Ghosh, Ismaila Temitayo Sanusi, Ruizhe Ma, Joseph E
+Gonzales, and Fred G Martin. 2023. DoodleIt: A novel tool and approach for
+teaching how CNNs perform image recognition. In Proceedings of the 25th australasian computing education conference. Association for Computing Machinery,
+New York, NY, USA, 31–38. https://doi.org/10.1145/3576123.3576127
+[14] Fred Martin, Vaishali Mahipal, Garima Jain, Srija Ghosh, and Ismaila Temitayo Sanusi. 2024. ChemAIstry: A Novel Software Tool for Teaching Model
+Training in K-8 Education. In Proceedings of the 55th ACM Technical Symposium on Computer Science Education V. 1 (Portland, OR, USA) (SIGCSE 2024).
+Association for Computing Machinery, New York, NY, USA, 792–798. https:
+//doi.org/10.1145/3626252.3630804
+[15] Davy Tsz Kit Ng, Jac Ka Lok Leung, Maggie Jiahong Su, Iris Heung Yue Yim,
+Maggie Shen Qiao, and Samuel Kai Wah Chu. 2022. AI Education and AI Literacy.
+
+512
+
+

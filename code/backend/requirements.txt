@@ -1,0 +1,14 @@
+# RewardCraft Backend Dependencies
+
+# FastAPI and server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+python-multipart==0.0.6
+
+# WebSocket support
+websockets==12.0
+
+# For future enhancements (optional)
+# numpy==1.26.2  # If we add more complex math
+# python-dotenv==1.0.0  # For environment variables

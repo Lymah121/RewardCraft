@@ -1,0 +1,88 @@
+.game-canvas-container {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.game-canvas-header {
+  margin-bottom: 15px;
+}
+
+.game-canvas-header h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.4em;
+  color: var(--text-primary);
+}
+
+.game-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.game-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1em;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-value {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+.game-canvas {
+  border: 2px solid #4B5563;
+  border-radius: 8px;
+  background: var(--bg-primary);
+}
+
+.game-over-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(31, 41, 55, 0.95);
+  border-radius: 12px;
+  padding: 40px 60px;
+  text-align: center;
+  border: 3px solid;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.game-over-overlay.victory {
+  border-color: var(--positive-green);
+}
+
+.game-over-overlay.victory h2 {
+  color: var(--positive-green);
+}
+
+.game-over-overlay.defeat {
+  border-color: var(--negative-red);
+}
+
+.game-over-overlay.defeat h2 {
+  color: var(--negative-red);
+}
+
+.game-over-overlay h2 {
+  margin: 0 0 10px 0;
+  font-size: 2.5em;
+}
+
+.game-over-overlay p {
+  margin: 0;
+  font-size: 1.2em;
+  color: var(--text-secondary);
+}

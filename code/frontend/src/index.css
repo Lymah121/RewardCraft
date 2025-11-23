@@ -1,0 +1,147 @@
+:root {
+  /* Color palette from UI_MOCKUPS.md */
+  --positive-green: #10B981;
+  --negative-red: #EF4444;
+  --neutral-blue: #3B82F6;
+  --gold-yellow: #F59E0B;
+
+  /* Q-Table heatmap */
+  --q-negative: #DC2626;
+  --q-neutral: #FCD34D;
+  --q-positive: #10B981;
+
+  /* UI Background */
+  --bg-primary: #1F2937;
+  --bg-secondary: #374151;
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+
+  /* Game elements */
+  --tower-color: #60A5FA;
+  --enemy-color: #F87171;
+  --path-color: #FDE68A;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-width: 1280px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--neutral-blue);
+  color: white;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+button:hover {
+  filter: brightness(1.1);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-secondary);
+  outline: none;
+  border-radius: 3px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--neutral-blue);
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--neutral-blue);
+  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+}
+
+/* Utility classes */
+.text-green {
+  color: var(--positive-green);
+}
+
+.text-red {
+  color: var(--negative-red);
+}
+
+.text-blue {
+  color: var(--neutral-blue);
+}
+
+.text-yellow {
+  color: var(--gold-yellow);
+}
+
+.bg-green {
+  background-color: var(--positive-green);
+}
+
+.bg-red {
+  background-color: var(--negative-red);
+}
+
+.bg-blue {
+  background-color: var(--neutral-blue);
+}
+
+.bg-secondary {
+  background-color: var(--bg-secondary);
+}
