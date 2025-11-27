@@ -135,16 +135,17 @@ class TrainingCoordinator:
 
         # Send episode start update
         if self.progress_callback:
+            state_key = self.state_encoder.get_state_key(state)
             self.progress_callback({
                 'type': 'episode_start',
                 'episode': episode_num,
-                'state': state,
+                'state': state_key,
                 'game_state': game_state
             })
 
         while not done and steps < max_steps:
-            # Agent chooses action
-            action = self.agent.choose_action(state)
+            # Agent chooses action (get_action returns (action_idx, was_exploration))
+            action, was_exploration = self.agent.get_action(state)
             action_name = self.agent.action_names[action]
 
             # Execute action in game
@@ -169,42 +170,64 @@ class TrainingCoordinator:
                 action=action,
                 reward=reward,
                 next_state=new_state,
-                done=game.game_over
+                done=(game.victory or game.defeat)
             )
 
             # Send step update
             if self.progress_callback:
+                # Convert state dicts to string keys for frontend
+                state_key = self.state_encoder.get_state_key(state)
+                new_state_key = self.state_encoder.get_state_key(new_state)
                 self.progress_callback({
                     'type': 'step',
                     'episode': episode_num,
                     'step': steps,
-                    'state': state,
+                    'state': state_key,
                     'action': action_name,
                     'reward': reward,
                     'reward_breakdown': reward_breakdown,
-                    'new_state': new_state,
+                    'new_state': new_state_key,
                     'q_value_old': old_q,
                     'q_value_new': new_q,
                     'game_state': new_game_state
                 })
 
             # Progress game simulation
-            # Run multiple ticks based on speed multiplier
-            ticks_per_step = int(60 * speed_multiplier)  # 60 FPS
-            for _ in range(ticks_per_step):
+            # Run multiple ticks and send periodic game state updates for visualization
+            ticks_per_step = int(60 * speed_multiplier)  # 60 FPS base
+            ticks_per_update = max(1, ticks_per_step // 10)  # Send ~10 updates per step
+
+            for tick in range(ticks_per_step):
                 game.tick()
-                if game.game_over:
+
+                # Send game state update periodically for real-time visualization
+                if self.progress_callback and tick % ticks_per_update == 0:
+                    self.progress_callback({
+                        'type': 'game_tick',
+                        'episode': episode_num,
+                        'step': steps,
+                        'tick': tick,
+                        'game_state': game.get_state()
+                    })
+
+                if game.victory or game.defeat:
                     break
 
             # Track progress
             total_reward += reward
             steps += 1
             state = new_state
-            done = game.game_over
+            done = (game.victory or game.defeat)
 
-            # Small delay for visualization (if needed)
+            # Small delay for visualization based on speed
+            # Lower speed = more delay = easier to watch
             if speed_multiplier <= 1.0:
-                time.sleep(0.016)  # ~60 FPS
+                time.sleep(0.05)  # 50ms delay at 1x speed
+            elif speed_multiplier <= 2.0:
+                time.sleep(0.02)  # 20ms delay at 2x speed
+            elif speed_multiplier <= 5.0:
+                time.sleep(0.005)  # 5ms delay at 5x speed
+            # No delay at higher speeds
 
         # Episode complete
         victory = game.victory

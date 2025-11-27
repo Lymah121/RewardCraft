@@ -16,6 +16,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from ai import QLearningAgent, RewardCalculator, TrainingCoordinator
 from game import StateEncoder
 
+# Store the event loop for thread-safe callback
+_main_loop: asyncio.AbstractEventLoop = None
+
 
 class ConnectionManager:
     """Manages WebSocket connections for training updates"""
@@ -64,12 +67,23 @@ _current_trainer: TrainingCoordinator = None
 _training_task: asyncio.Task = None
 
 
-async def training_progress_callback(update: Dict):
+async def _async_broadcast(update: Dict):
+    """Async broadcast helper"""
+    await manager.broadcast(update)
+
+
+def training_progress_callback(update: Dict):
     """
     Callback function for training updates.
     Broadcasts updates to all connected WebSocket clients.
+    This is a sync function that schedules the async broadcast on the main event loop.
     """
-    await manager.broadcast(update)
+    global _main_loop
+    if _main_loop is not None:
+        # Schedule the coroutine on the main event loop from this thread
+        future = asyncio.run_coroutine_threadsafe(_async_broadcast(update), _main_loop)
+        # Don't wait for the result to avoid blocking training
+        # future.result() would block
 
 
 async def handle_training_websocket(websocket: WebSocket):
@@ -123,7 +137,10 @@ async def handle_training_websocket(websocket: WebSocket):
 
 async def handle_start_training(websocket: WebSocket, data: Dict):
     """Start a new training session"""
-    global _current_trainer, _training_task
+    global _current_trainer, _training_task, _main_loop
+
+    # Capture the event loop for thread-safe callbacks
+    _main_loop = asyncio.get_running_loop()
 
     # Check if training is already running
     if _training_task and not _training_task.done():

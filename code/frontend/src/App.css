@@ -94,6 +94,66 @@
   color: white;
 }
 
+/* Live Training Info Panel */
+.live-training-info {
+  background: linear-gradient(135deg, #1e3a5f 0%, #2d1b4e 100%);
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px solid #60a5fa;
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: #60a5fa; }
+  50% { border-color: #3b82f6; }
+}
+
+.live-training-info h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.2em;
+  color: #60a5fa;
+}
+
+.live-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.live-stat {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px 15px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.live-label {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}
+
+.live-value {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.live-value.positive {
+  color: var(--positive-green);
+}
+
+.live-value.negative {
+  color: var(--negative-red);
+}
+
+.live-value.action {
+  color: #fbbf24;
+  font-family: monospace;
+  font-size: 0.95em;
+}
+
 .training-progress {
   background: var(--bg-secondary);
   border-radius: 12px;

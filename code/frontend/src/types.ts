@@ -26,16 +26,23 @@ export interface GameState {
 
 export interface Enemy {
   id: number;
-  position: [number, number];
+  // Backend sends x, y separately; frontend may expect position array
+  x?: number;
+  y?: number;
+  position?: [number, number];
   hp: number;
   max_hp: number;
 }
 
 export interface Tower {
   id: number;
-  position: [number, number];
-  range: number;
-  damage: number;
+  // Backend sends x, y separately; frontend may expect position array
+  x?: number;
+  y?: number;
+  position?: [number, number];
+  range?: number;
+  damage?: number;
+  kills?: number;
 }
 
 export interface QTableData {
@@ -85,7 +92,7 @@ export interface TrainingHistory {
 
 // WebSocket message types
 export interface WSMessage {
-  type: 'training_started' | 'episode_start' | 'step' | 'episode_end' | 'training_complete' | 'status' | 'error' | 'pong';
+  type: 'training_started' | 'episode_start' | 'step' | 'game_tick' | 'episode_end' | 'episode_complete' | 'training_complete' | 'status' | 'error' | 'pong';
   [key: string]: any;
 }
 

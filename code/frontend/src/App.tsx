@@ -41,21 +41,32 @@ function App() {
   // Episode stats
   const [episodeRewards, setEpisodeRewards] = useState<number[]>([]);
   const [currentEpisodeReward, setCurrentEpisodeReward] = useState(0);
+  const [currentEpisode, setCurrentEpisode] = useState(0);
+  const [lastAction, setLastAction] = useState<string | null>(null);
+  const [lastReward, setLastReward] = useState<number | null>(null);
+  const [isTrainingActive, setIsTrainingActive] = useState(false);
 
   // Handle WebSocket messages
   const handleMessage = useCallback((message: WSMessage) => {
-    console.log('WebSocket message:', message.type);
+    // Don't log game_tick to reduce console spam
+    if (message.type !== 'game_tick') {
+      console.log('WebSocket message:', message.type);
+    }
 
     switch (message.type) {
       case 'training_started':
         console.log('Training started');
         setEpisodeRewards([]);
         setCurrentEpisodeReward(0);
+        setIsTrainingActive(true);
         break;
 
       case 'episode_start':
         setGameState(message.game_state);
         setCurrentEpisodeReward(0);
+        setCurrentEpisode(message.episode);
+        setLastAction(null);
+        setLastReward(null);
         break;
 
       case 'step': {
@@ -63,9 +74,16 @@ function App() {
         setGameState(stepMsg.game_state);
         setCurrentState(stepMsg.state);
         setCurrentAction(stepMsg.action);
+        setLastAction(stepMsg.action);
+        setLastReward(stepMsg.reward);
         setCurrentEpisodeReward((prev) => prev + stepMsg.reward);
         break;
       }
+
+      case 'game_tick':
+        // Real-time game state update for visualization
+        setGameState(message.game_state);
+        break;
 
       case 'episode_end': {
         const endMsg = message as WSEpisodeEnd;
@@ -76,6 +94,7 @@ function App() {
 
       case 'training_complete':
         console.log('Training complete!', message.summary);
+        setIsTrainingActive(false);
         if (message.summary.q_table) {
           setQTableData(message.summary.q_table);
         }
@@ -147,6 +166,7 @@ function App() {
 
   // Handle training start
   const handleStartTraining = () => {
+    console.log('Start Training clicked!', { isConnected, isInitialized, isTraining });
     startTraining({
       num_episodes: 100,
       reward_config: rewardConfig,
@@ -187,6 +207,39 @@ function App() {
         {/* Left panel - Game */}
         <div className="left-panel">
           <GameCanvas gameState={gameState} />
+
+          {/* Live Training Info */}
+          {isTrainingActive && (
+            <div className="live-training-info">
+              <h3>🎯 Live Training</h3>
+              <div className="live-stats">
+                <div className="live-stat">
+                  <span className="live-label">Episode:</span>
+                  <span className="live-value">{currentEpisode}</span>
+                </div>
+                <div className="live-stat">
+                  <span className="live-label">Episode Reward:</span>
+                  <span className={`live-value ${currentEpisodeReward >= 0 ? 'positive' : 'negative'}`}>
+                    {currentEpisodeReward.toFixed(1)}
+                  </span>
+                </div>
+                {lastAction && (
+                  <div className="live-stat">
+                    <span className="live-label">Last Action:</span>
+                    <span className="live-value action">{lastAction}</span>
+                  </div>
+                )}
+                {lastReward !== null && (
+                  <div className="live-stat">
+                    <span className="live-label">Last Reward:</span>
+                    <span className={`live-value ${lastReward >= 0 ? 'positive' : 'negative'}`}>
+                      {lastReward >= 0 ? '+' : ''}{lastReward.toFixed(1)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {trainingStatus && (
             <div className="training-progress">

@@ -65,17 +65,20 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
     if (!gameState) return;
 
     // Draw towers
+    // Backend sends {x, y} not {position: [x, y]}
     if (gameState.towers) {
       gameState.towers.forEach((tower) => {
-        const [x, y] = tower.position;
+        const x = tower.x ?? (tower.position ? tower.position[0] : 0);
+        const y = tower.y ?? (tower.position ? tower.position[1] : 0);
         const centerX = (x + 0.5) * cellSize;
         const centerY = (y + 0.5) * cellSize;
 
-        // Tower range circle
+        // Tower range circle (default range is 2)
+        const range = tower.range ?? 2;
         ctx.strokeStyle = 'rgba(96, 165, 250, 0.3)';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(centerX, centerY, tower.range * cellSize, 0, Math.PI * 2);
+        ctx.arc(centerX, centerY, range * cellSize, 0, Math.PI * 2);
         ctx.stroke();
 
         // Tower triangle
@@ -90,9 +93,11 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
     }
 
     // Draw enemies
+    // Backend sends {x, y} not {position: [x, y]}
     if (gameState.enemies) {
       gameState.enemies.forEach((enemy) => {
-        const [x, y] = enemy.position;
+        const x = enemy.x ?? (enemy.position ? enemy.position[0] : 0);
+        const y = enemy.y ?? (enemy.position ? enemy.position[1] : 0);
         const centerX = (x + 0.5) * cellSize;
         const centerY = (y + 0.5) * cellSize;
 
