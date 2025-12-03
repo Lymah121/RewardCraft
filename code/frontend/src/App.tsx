@@ -57,6 +57,11 @@ function App() {
   const [lastAction, setLastAction] = useState<string | null>(null);
   const [lastReward, setLastReward] = useState<number | null>(null);
   const [isTrainingActive, setIsTrainingActive] = useState(false);
+  const [lastEpisodeOutcome, setLastEpisodeOutcome] = useState<{
+    victory: boolean;
+    wave: number;
+    reward: number;
+  } | null>(null);
 
   // Phase 2: Reward breakdown tracking
   const [currentBreakdown, setCurrentBreakdown] = useState<Record<string, number> | null>(null);
@@ -93,6 +98,7 @@ function App() {
         setCurrentEpisodeReward(0);
         setRecentBreakdowns([]);
         setIsTrainingActive(true);
+        setLastEpisodeOutcome(null);
         break;
 
       case 'episode_start':
@@ -141,6 +147,12 @@ function App() {
         setEpisodeRewards((prev) => [...prev, endMsg.total_reward]);
         setEpisodeVictories((prev) => [...prev, endMsg.victory]);
         setGameState(endMsg.final_state);
+        // Track last episode outcome for display
+        setLastEpisodeOutcome({
+          victory: endMsg.victory,
+          wave: endMsg.final_state?.current_wave ?? 0,
+          reward: endMsg.total_reward,
+        });
         break;
       }
 
@@ -282,48 +294,60 @@ function App() {
     : 0;
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>🎮 RewardCraft: Tower Defense AI Trainer</h1>
-        <div className="header-right">
-          <span className="phase-badge">Phase 3</span>
-          <span className={`status-indicator ${isConnected ? 'connected' : 'disconnected'}`}>
-            {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
+    <div className="min-h-screen bg-cyber-black text-gray-100 p-6 font-sans">
+      <header className="flex justify-between items-center mb-8 glass-panel p-4 neon-border">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
+            🎮 RewardCraft: Tower Defense AI Trainer
+          </h1>
+          <span className="px-3 py-1 bg-neon-purple/20 text-neon-purple border border-neon-purple/50 rounded-full text-xs font-mono uppercase tracking-wider">
+            Phase 3
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${isConnected ? 'bg-neon-green/20 text-neon-green border border-neon-green/50' : 'bg-neon-red/20 text-neon-red border border-neon-red/50'
+            }`}>
+            <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-neon-green animate-pulse' : 'bg-neon-red'}`}></span>
+            {isConnected ? 'Connected' : 'Disconnected'}
           </span>
         </div>
       </header>
 
-      <div className="app-layout-phase2">
+      <div className="grid grid-cols-12 gap-6 h-[calc(100vh-140px)]">
         {/* Left Column - Game & Visualization */}
-        <div className="column-left">
-          <GameCanvas gameState={gameState} />
+        <div className="col-span-3 flex flex-col gap-6 overflow-y-auto pr-2">
+          <div className="glass-panel p-4">
+            <GameCanvas gameState={gameState} />
+          </div>
 
           {/* Live Training Info */}
           {isTrainingActive && (
-            <div className="live-training-info">
-              <h3>🎯 Live Training</h3>
-              <div className="live-stats">
-                <div className="live-stat">
-                  <span className="live-label">Episode:</span>
-                  <span className="live-value">{currentEpisode}/{trainingSettings.numEpisodes}</span>
+            <div className="glass-panel p-4 border-l-4 border-neon-blue">
+              <h3 className="text-neon-blue font-bold mb-3 flex items-center gap-2">
+                <span className="animate-spin">⚙️</span> Live Training
+              </h3>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex flex-col">
+                  <span className="text-gray-400 text-xs uppercase">Episode</span>
+                  <span className="font-mono text-lg">{currentEpisode}/{trainingSettings.numEpisodes}</span>
                 </div>
-                <div className="live-stat">
-                  <span className="live-label">Episode Reward:</span>
-                  <span className={`live-value ${currentEpisodeReward >= 0 ? 'positive' : 'negative'}`}>
+                <div className="flex flex-col">
+                  <span className="text-gray-400 text-xs uppercase">Reward</span>
+                  <span className={`font-mono text-lg ${currentEpisodeReward >= 0 ? 'text-neon-green' : 'text-neon-red'}`}>
                     {currentEpisodeReward.toFixed(1)}
                   </span>
                 </div>
                 {lastAction && (
-                  <div className="live-stat">
-                    <span className="live-label">Last Action:</span>
-                    <span className="live-value action">{lastAction}</span>
+                  <div className="col-span-2 flex flex-col mt-2 pt-2 border-t border-white/10">
+                    <span className="text-gray-400 text-xs uppercase">Last Action</span>
+                    <span className="font-mono text-neon-yellow">{lastAction}</span>
                   </div>
                 )}
-                {lastReward !== null && (
-                  <div className="live-stat">
-                    <span className="live-label">Last Reward:</span>
-                    <span className={`live-value ${lastReward >= 0 ? 'positive' : 'negative'}`}>
-                      {lastReward >= 0 ? '+' : ''}{lastReward.toFixed(1)}
+                {lastEpisodeOutcome && (
+                  <div className="col-span-2 flex flex-col mt-2 pt-2 border-t border-white/10">
+                    <span className="text-gray-400 text-xs uppercase">Last Episode</span>
+                    <span className={`font-mono text-lg ${lastEpisodeOutcome.victory ? 'text-neon-green' : 'text-neon-red'}`}>
+                      {lastEpisodeOutcome.victory ? '🎉 WIN' : `💔 DEFEAT @ Wave ${lastEpisodeOutcome.wave}/5`}
                     </span>
                   </div>
                 )}
@@ -331,75 +355,89 @@ function App() {
             </div>
           )}
 
-          <LearningCurve
-            episodeRewards={episodeRewards}
-            episodeVictories={episodeVictories}
-            isTraining={isTrainingActive}
-          />
+          <div className="glass-panel p-4 flex-grow">
+            <LearningCurve
+              episodeRewards={episodeRewards}
+              episodeVictories={episodeVictories}
+              isTraining={isTrainingActive}
+            />
+          </div>
         </div>
 
         {/* Center Column - Q-Table & Reward Breakdown */}
-        <div className="column-center">
-          <QTableHeatmap
-            qTableData={qTableData}
-            currentState={currentState}
-            currentAction={currentAction}
-          />
+        <div className="col-span-6 flex flex-col gap-6 overflow-y-auto px-2">
+          <div className="glass-panel p-1 flex-grow min-h-[400px]">
+            <QTableHeatmap
+              qTableData={qTableData}
+              currentState={currentState}
+              currentAction={currentAction}
+            />
+          </div>
 
-          <RewardBreakdown
-            currentBreakdown={currentBreakdown}
-            recentBreakdowns={recentBreakdowns}
-            currentStep={currentStep}
-          />
+          <div className="glass-panel p-4 h-64">
+            <RewardBreakdown
+              currentBreakdown={currentBreakdown}
+              recentBreakdowns={recentBreakdowns}
+              currentStep={currentStep}
+            />
+          </div>
         </div>
 
         {/* Right Column - Controls & Agents */}
-        <div className="column-right">
-          <RewardDesigner
-            initialConfig={rewardConfig}
-            onConfigChange={handleRewardConfigChange}
-            disabled={isTraining}
-          />
-
-          <TrainingControls
-            onSettingsChange={handleSettingsChange}
-            disabled={isTraining}
-            isTraining={isTraining}
-          />
-
-          <div className="training-buttons">
-            <button
-              onClick={initialize}
+        <div className="col-span-3 flex flex-col gap-6 overflow-y-auto pl-2">
+          <div className="glass-panel p-4">
+            <RewardDesigner
+              initialConfig={rewardConfig}
+              onConfigChange={handleRewardConfigChange}
               disabled={isTraining}
-              className="button-secondary"
-            >
-              🔄 Reset AI
-            </button>
+            />
+          </div>
+
+          <div className="glass-panel p-4">
+            <TrainingControls
+              onSettingsChange={handleSettingsChange}
+              disabled={isTraining}
+              isTraining={isTraining}
+            />
+          </div>
+
+          <div className="glass-panel p-4 flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={initialize}
+                disabled={isTraining}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+              >
+                🔄 Reset AI
+              </button>
+              <button
+                onClick={stopTraining}
+                disabled={!isTraining}
+                className="px-4 py-2 bg-neon-red/20 hover:bg-neon-red/30 text-neon-red border border-neon-red/50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+              >
+                ⏹️ Stop
+              </button>
+            </div>
             <button
               onClick={handleStartTraining}
               disabled={!isInitialized || isTraining || !isConnected}
-              className="button-primary button-large"
+              className="w-full py-3 bg-neon-blue hover:bg-cyan-400 text-black font-bold rounded-lg shadow-lg shadow-cyan-500/20 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {isTraining ? '⏸️ Training...' : `▶️ Train (${trainingSettings.numEpisodes} eps)`}
-            </button>
-            <button
-              onClick={stopTraining}
-              disabled={!isTraining}
-              className="button-danger"
-            >
-              ⏹️ Stop
+              {isTraining ? '⏸️ Training in Progress...' : `▶️ Start Training (${trainingSettings.numEpisodes} eps)`}
             </button>
           </div>
 
-          <AgentManager
-            currentQTable={qTableData}
-            currentRewardConfig={rewardConfig}
-            episodesTrained={episodeRewards.length}
-            winRate={winRate}
-            avgReward={avgReward}
-            onLoadAgent={handleLoadAgent}
-            disabled={isTraining}
-          />
+          <div className="glass-panel p-4 flex-grow">
+            <AgentManager
+              currentQTable={qTableData}
+              currentRewardConfig={rewardConfig}
+              episodesTrained={episodeRewards.length}
+              winRate={winRate}
+              avgReward={avgReward}
+              onLoadAgent={handleLoadAgent}
+              disabled={isTraining}
+            />
+          </div>
         </div>
       </div>
     </div>

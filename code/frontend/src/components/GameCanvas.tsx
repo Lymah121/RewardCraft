@@ -17,19 +17,19 @@ interface GameCanvasProps {
 const GRID_SIZE = 10;
 const PATH_ROW = 5;
 
-// Tower colors by type
-const TOWER_COLORS: Record<string, { fill: string; range: string }> = {
-  archer: { fill: '#60A5FA', range: 'rgba(96, 165, 250, 0.2)' },   // Blue
-  cannon: { fill: '#F97316', range: 'rgba(249, 115, 22, 0.2)' },   // Orange
-  slow: { fill: '#A855F7', range: 'rgba(168, 85, 247, 0.2)' },     // Purple
+// Tower colors by type - Neon Palette
+const TOWER_COLORS: Record<string, { fill: string; range: string; glow: string }> = {
+  archer: { fill: '#06b6d4', range: 'rgba(6, 182, 212, 0.1)', glow: '#06b6d4' },   // Cyan (Neon Blue)
+  cannon: { fill: '#f43f5e', range: 'rgba(244, 63, 94, 0.1)', glow: '#f43f5e' },    // Rose (Neon Red)
+  slow: { fill: '#8b5cf6', range: 'rgba(139, 92, 246, 0.1)', glow: '#8b5cf6' },     // Violet (Neon Purple)
 };
 
 // Enemy colors by type
 const ENEMY_COLORS: Record<string, string> = {
-  normal: '#F87171',   // Red
-  fast: '#FBBF24',     // Yellow
-  tanky: '#6B7280',    // Gray
-  boss: '#DC2626',     // Dark red
+  normal: '#f43f5e',   // Neon Red
+  fast: '#f59e0b',     // Neon Yellow
+  tanky: '#94a3b8',    // Slate Gray
+  boss: '#ef4444',     // Bright Red
 };
 
 // Enemy sizes by type
@@ -55,8 +55,8 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
 
     const cellSize = width / GRID_SIZE;
 
-    // Draw grid
-    ctx.strokeStyle = '#4B5563';
+    // Draw grid with cyber look
+    ctx.strokeStyle = '#334155'; // cyber-gray
     ctx.lineWidth = 1;
     for (let x = 0; x <= GRID_SIZE; x++) {
       ctx.beginPath();
@@ -71,21 +71,29 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
       ctx.stroke();
     }
 
-    // Draw path
-    ctx.fillStyle = '#FDE68A';
-    ctx.globalAlpha = 0.3;
+    // Draw path with glow
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#f59e0b';
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.15)'; // Neon Yellow transparent
     ctx.fillRect(0, PATH_ROW * cellSize, width, cellSize);
-    ctx.globalAlpha = 1.0;
+    ctx.shadowBlur = 0;
 
     // Draw spawn and base
-    ctx.fillStyle = '#10B981';
-    ctx.font = `${cellSize * 0.6}px Arial`;
+    ctx.font = `bold ${cellSize * 0.5}px "JetBrains Mono"`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('S', cellSize / 2, (PATH_ROW + 0.5) * cellSize);
 
-    ctx.fillStyle = '#3B82F6';
-    ctx.fillText('B', (GRID_SIZE - 0.5) * cellSize, (PATH_ROW + 0.5) * cellSize);
+    // Spawn
+    ctx.fillStyle = '#10b981'; // Neon Green
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#10b981';
+    ctx.fillText('START', cellSize / 2, (PATH_ROW + 0.5) * cellSize);
+
+    // Base
+    ctx.fillStyle = '#06b6d4'; // Neon Blue
+    ctx.shadowColor = '#06b6d4';
+    ctx.fillText('BASE', (GRID_SIZE - 0.5) * cellSize, (PATH_ROW + 0.5) * cellSize);
+    ctx.shadowBlur = 0;
 
     if (!gameState) return;
 
@@ -103,9 +111,9 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
         const level = tower.level ?? 1;
 
         // Tower range circle
-        ctx.strokeStyle = colors.range;
+        ctx.strokeStyle = colors.range.replace('0.1', '0.3');
         ctx.fillStyle = colors.range;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(centerX, centerY, range * cellSize, 0, Math.PI * 2);
         ctx.fill();
@@ -113,6 +121,8 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
 
         // Draw tower based on type
         ctx.fillStyle = colors.fill;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = colors.glow;
 
         if (towerType === 'archer') {
           // Triangle for archer
@@ -125,7 +135,7 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
         } else if (towerType === 'cannon') {
           // Square for cannon
           const size = cellSize * 0.35;
-          ctx.fillRect(centerX - size/2, centerY - size/2, size, size);
+          ctx.fillRect(centerX - size / 2, centerY - size / 2, size, size);
         } else if (towerType === 'slow') {
           // Diamond for slow tower
           ctx.beginPath();
@@ -136,10 +146,11 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
           ctx.closePath();
           ctx.fill();
         }
+        ctx.shadowBlur = 0;
 
         // Draw upgrade level indicators (stars)
         if (level > 1) {
-          ctx.fillStyle = '#FCD34D';
+          ctx.fillStyle = '#f59e0b'; // Neon Yellow
           ctx.font = `${cellSize * 0.2}px Arial`;
           const stars = '★'.repeat(level - 1);
           ctx.fillText(stars, centerX, centerY + cellSize * 0.35);
@@ -160,9 +171,9 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
         const size = ENEMY_SIZES[enemyType] || 0.3;
         const isSlowed = enemy.is_slowed;
 
-        // Slow effect indicator (blue ring)
+        // Slow effect indicator (purple ring)
         if (isSlowed) {
-          ctx.strokeStyle = '#A855F7';
+          ctx.strokeStyle = '#8b5cf6';
           ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.arc(centerX, centerY, cellSize * (size + 0.08), 0, Math.PI * 2);
@@ -171,6 +182,8 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
 
         // Enemy shape based on type
         ctx.fillStyle = color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = color;
 
         if (enemyType === 'boss') {
           // Hexagon for boss
@@ -186,13 +199,13 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
           ctx.fill();
 
           // Boss crown
-          ctx.fillStyle = '#FCD34D';
+          ctx.fillStyle = '#f59e0b';
           ctx.font = `${cellSize * 0.25}px Arial`;
           ctx.fillText('👑', centerX, centerY - cellSize * 0.45);
         } else if (enemyType === 'tanky') {
           // Square for tanky
           const squareSize = cellSize * size * 1.5;
-          ctx.fillRect(centerX - squareSize/2, centerY - squareSize/2, squareSize, squareSize);
+          ctx.fillRect(centerX - squareSize / 2, centerY - squareSize / 2, squareSize, squareSize);
         } else if (enemyType === 'fast') {
           // Triangle pointing right for fast
           ctx.beginPath();
@@ -207,6 +220,7 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
           ctx.arc(centerX, centerY, cellSize * size, 0, Math.PI * 2);
           ctx.fill();
         }
+        ctx.shadowBlur = 0;
 
         // HP bar
         const hpPercent = enemy.hp / enemy.max_hp;
@@ -215,70 +229,97 @@ export const GameCanvas = ({ gameState, width = 600, height = 600 }: GameCanvasP
         const barX = centerX - barWidth / 2;
         const barY = centerY - cellSize * 0.5;
 
-        ctx.fillStyle = '#4B5563';
+        ctx.fillStyle = '#334155';
         ctx.fillRect(barX, barY, barWidth, barHeight);
 
-        ctx.fillStyle = hpPercent > 0.5 ? '#10B981' : hpPercent > 0.25 ? '#F59E0B' : '#EF4444';
+        ctx.fillStyle = hpPercent > 0.5 ? '#10b981' : hpPercent > 0.25 ? '#f59e0b' : '#ef4444';
         ctx.fillRect(barX, barY, barWidth * hpPercent, barHeight);
       });
     }
   }, [gameState, width, height]);
 
   return (
-    <div className="game-canvas-container">
-      <div className="game-canvas-header">
-        <h3>🎮 Tower Defense Game</h3>
-        <span className="phase-tag">Phase 3</span>
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">
+          <span className="text-2xl">📺</span> Game View
+        </h3>
         {gameState && (
-          <div className="game-stats">
-            <span className="game-stat">
-              <span className="stat-label">Lives:</span>
-              <span className="stat-value">❤️ {gameState.lives}</span>
+          <div className="flex gap-4 text-sm font-mono">
+            <span className="flex items-center gap-1 text-neon-red">
+              ❤️ {gameState.lives}
             </span>
-            <span className="game-stat">
-              <span className="stat-label">Gold:</span>
-              <span className="stat-value">💰 {gameState.gold}</span>
+            <span className="flex items-center gap-1 text-neon-yellow">
+              💰 {gameState.gold}
             </span>
-            <span className="game-stat">
-              <span className="stat-label">Wave:</span>
-              <span className="stat-value">
-                {gameState.current_wave}/{gameState.total_waves}
-              </span>
+            <span className="flex items-center gap-1 text-neon-blue">
+              🌊 {gameState.current_wave}/{gameState.total_waves}
             </span>
           </div>
         )}
       </div>
 
-      <canvas
-        ref={canvasRef}
-        width={width}
-        height={height}
-        className="game-canvas"
-      />
+      <div className="relative flex-grow flex items-center justify-center bg-cyber-dark/50 rounded-lg border border-white/5 overflow-hidden">
+        <canvas
+          ref={canvasRef}
+          width={width}
+          height={height}
+          className="max-w-full max-h-full object-contain"
+        />
 
-      {/* Legend */}
-      <div className="game-legend">
-        <div className="legend-section">
-          <span className="legend-title">Towers:</span>
-          <span className="legend-item"><span className="legend-color" style={{background: '#60A5FA'}}></span>Archer</span>
-          <span className="legend-item"><span className="legend-color" style={{background: '#F97316'}}></span>Cannon</span>
-          <span className="legend-item"><span className="legend-color" style={{background: '#A855F7'}}></span>Slow</span>
-        </div>
-        <div className="legend-section">
-          <span className="legend-title">Enemies:</span>
-          <span className="legend-item"><span className="legend-color" style={{background: '#F87171'}}></span>Normal</span>
-          <span className="legend-item"><span className="legend-color" style={{background: '#FBBF24'}}></span>Fast</span>
-          <span className="legend-item"><span className="legend-color" style={{background: '#6B7280'}}></span>Tanky</span>
-          <span className="legend-item"><span className="legend-color" style={{background: '#DC2626'}}></span>Boss</span>
-        </div>
+        {gameState?.game_over && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-10">
+            <div className={`text-center p-8 rounded-2xl border-2 ${gameState.victory ? 'border-neon-green bg-neon-green/10' : 'border-neon-red bg-neon-red/10'
+              }`}>
+              <h2 className={`text-4xl font-bold mb-2 ${gameState.victory ? 'text-neon-green' : 'text-neon-red'
+                }`}>
+                {gameState.victory ? '🎉 VICTORY!' : '💔 DEFEAT'}
+              </h2>
+              <p className="text-gray-300 font-mono">
+                {gameState.victory
+                  ? 'All waves cleared!'
+                  : `Base destroyed on wave ${gameState.current_wave}/${gameState.total_waves}`}
+              </p>
+              <p className="text-gray-500 text-sm mt-2 font-mono">
+                {gameState.victory
+                  ? `💰 ${gameState.gold} gold remaining`
+                  : `❤️ ${gameState.lives} lives | 💰 ${gameState.gold} gold`}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {gameState?.game_over && (
-        <div className={`game-over-overlay ${gameState.victory ? 'victory' : 'defeat'}`}>
-          <h2>{gameState.victory ? '🎉 Victory!' : '💔 Defeat'}</h2>
-          <p>{gameState.victory ? 'All 5 waves completed!' : 'Out of lives'}</p>
+      {/* Legend */}
+      <div className="mt-4 grid grid-cols-2 gap-4 text-xs text-gray-400">
+        <div className="flex flex-wrap gap-3 items-center">
+          <span className="font-bold text-gray-300">TOWERS:</span>
+          <div className="flex items-center gap-1">
+            <span className="w-3 h-3 rounded-full bg-neon-blue shadow-[0_0_5px_#06b6d4]"></span> Archer
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-3 h-3 rounded-sm bg-neon-red shadow-[0_0_5px_#f43f5e]"></span> Cannon
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-3 h-3 rotate-45 bg-neon-purple shadow-[0_0_5px_#8b5cf6]"></span> Slow
+          </div>
         </div>
-      )}
+        <div className="flex flex-wrap gap-3 items-center justify-end">
+          <span className="font-bold text-gray-300">ENEMIES:</span>
+          <div className="flex items-center gap-1">
+            <span className="w-3 h-3 rounded-full bg-neon-red"></span> Normal
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-3 h-3 rounded-full bg-neon-yellow"></span> Fast
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-3 h-3 rounded-sm bg-slate-400"></span> Tank
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-3 h-3 rounded-full bg-red-600 border border-white"></span> Boss
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
