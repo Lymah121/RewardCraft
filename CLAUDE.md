@@ -128,3 +128,57 @@ The paper follows a standard academic structure with modular sections in [/rewar
 - Verify consistency across all manuscript sections
 - Ensure the abstract in main.md reflects the current state of all sections
 - Check that learning outcomes are specific and measurable
+
+---
+
+## Multi-Agent Development Team
+
+This project uses multiple AI agents working collaboratively. Each agent reads git commits to understand changes made by others.
+
+### Agent Roles & Responsibilities
+
+| Agent | Role | Primary Responsibilities |
+|-------|------|--------------------------|
+| **Claude Code (Opus 4.5)** | Architect & Integrator | System design, cross-stack debugging, git coordination, code reviews, CLAUDE.md maintenance |
+| **Gemini 3 Pro** | Frontend Lead | UI/UX overhaul, React components, Tailwind CSS, visual design, animations, responsive layouts |
+| **OpenAI Codex (GPT-5.1-Codex-Max)** | Backend & ML Lead | Python backend, Q-learning optimization, reward algorithms, API endpoints, performance tuning |
+
+### Coordination Protocol
+
+1. **Git commits are the source of truth** - Each agent reads recent commits before starting work
+2. **Clear file ownership** - Avoid simultaneous edits to the same file
+3. **Commit messages should be descriptive** - Include what changed and why
+4. **This file (CLAUDE.md) is shared context** - All agents should read it first
+
+### Current Development Status (Phase 3)
+
+**Completed:**
+- Phase 1: Core Q-learning tower defense game
+- Phase 2: Learning curve, training controls, reward breakdown, save/load agents
+- Phase 3: Multiple tower types, enemy types, upgrades, expanded state space (486 states, 12 actions)
+
+**In Progress:**
+- Gemini 3: Frontend redesign with cyberpunk/neon theme, Tailwind CSS migration
+- Codex: Backend ML optimizations, algorithm improvements
+
+### File Ownership Guidelines
+
+| Directory/Files | Primary Owner | Notes |
+|-----------------|---------------|-------|
+| `/code/frontend/src/components/*.tsx` | Gemini 3 | UI components |
+| `/code/frontend/src/*.css`, `tailwind.config.js` | Gemini 3 | Styling |
+| `/code/backend/ai/*.py` | Codex | ML algorithms |
+| `/code/backend/game/*.py` | Codex | Game engine |
+| `/code/backend/api/*.py` | Claude/Codex | API layer (shared) |
+| `/reward_craft_paper/` | Gemini 3 | Research paper |
+| `/presentations/` | Any | Presentation materials |
+| `CLAUDE.md` | Claude | This coordination file |
+
+### Communication via Commits
+
+When making commits, use prefixes to indicate the agent:
+- `[Claude]` - Changes by Claude Code
+- `[Gemini]` - Changes by Gemini 3 Pro
+- `[Codex]` - Changes by OpenAI Codex
+
+Example: `[Gemini] Redesign GameCanvas with neon cyberpunk theme`
