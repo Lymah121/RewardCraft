@@ -216,6 +216,11 @@ class TowerDefenseGame:
         # Update slow effects
         self._update_slow_effects()
 
+        # Between-wave wait handling: when the break is over, allow the next wave to start
+        if self.between_waves and (self.time - self.wave_start_time >= self.between_wave_time):
+            self.between_waves = False
+            self.wave_start_time = self.time  # reset timer for next prep
+
         # Check if we need to start next wave
         if not self.wave_active and not self.between_waves:
             self._start_next_wave()
