@@ -182,3 +182,59 @@ When making commits, use prefixes to indicate the agent:
 - `[Codex]` - Changes by OpenAI Codex
 
 Example: `[Gemini] Redesign GameCanvas with neon cyberpunk theme`
+
+---
+
+## Active Task: Reward Presets Feature
+
+**Purpose:** Add preset buttons to let students quickly load different reward configurations and observe how reward design affects AI behavior. This directly teaches specification gaming and reward shaping concepts.
+
+### Task Breakdown
+
+#### [Claude] - COMPLETED ✅
+Created reward presets data structure in `/code/frontend/src/presets.ts`:
+- 5 presets: Win Focused, Greedy Killer, Gold Hoarder, Defensive, Balanced
+- Each preset has: id, name, emoji, description, educationalNote, config
+- Educational notes explain why each preset leads to specific behaviors
+- TypeScript interfaces for type safety
+
+#### [Gemini] - TODO 🎯
+**File:** `/code/frontend/src/components/RewardDesigner.tsx`
+
+Build UI for preset selection buttons:
+1. Import presets from `../presets.ts`
+2. Add a row of preset buttons above the reward sliders
+3. Match the existing cyberpunk/neon theme (glass-panel, neon colors)
+4. When clicked, call `onConfigChange(preset.config)`
+5. Show tooltip/hover with `preset.educationalNote`
+6. Visual indicator for currently active preset (if config matches)
+
+**Design suggestions:**
+```tsx
+// Button style example
+<button className="px-3 py-2 glass-panel border border-neon-purple/50
+  hover:bg-neon-purple/20 text-sm font-mono rounded-lg transition-all">
+  {preset.emoji} {preset.name}
+</button>
+```
+
+#### [Codex] - OPTIONAL
+**File:** `/code/backend/api/routes.py` (if needed)
+
+Backend preset endpoint (only if Gemini needs server-side preset storage):
+- `GET /api/presets` - Return all presets
+- `GET /api/presets/{id}` - Return specific preset
+
+Note: Presets are currently defined client-side, so this is optional unless we want to persist custom user presets.
+
+---
+
+### Preset Configurations Reference
+
+| Preset | Purpose | Key Settings |
+|--------|---------|--------------|
+| 🏆 Win Focused | Teaches proper reward design | game_won: 500, game_lost: -500, enemy_reached_base: -100 |
+| 💀 Greedy Killer | Demonstrates specification gaming | enemy_defeated: 25, game_won: 50 (agent farms kills, ignores winning) |
+| 💰 Gold Hoarder | Demonstrates specification gaming | gold_saved: 5, tower_built: -10 (agent hoards gold, fails to defend) |
+| 🛡️ Defensive | Shows defensive strategy | enemy_reached_base: -150, slow_tower_built: 10 |
+| ⚖️ Balanced | Baseline comparison | Moderate values across all rewards |
