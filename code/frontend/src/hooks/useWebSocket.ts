@@ -127,12 +127,18 @@ export const useWebSocket = ({
       num_episodes?: number;
       reward_config?: RewardConfig;
       speed_multiplier?: number;
+      learning_rate?: number;
+      discount_factor?: number;
+      epsilon?: number;
     }) => {
       sendCommand({
         command: 'start_training',
         num_episodes: options.num_episodes || 100,
         reward_config: options.reward_config,
         speed_multiplier: options.speed_multiplier || 1.0,
+        learning_rate: options.learning_rate,
+        discount_factor: options.discount_factor,
+        epsilon: options.epsilon,
       });
     },
     [sendCommand]

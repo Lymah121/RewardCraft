@@ -1,0 +1,122 @@
+/* Learning Curve Component Styles */
+
+.learning-curve {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #334155;
+}
+
+.learning-curve-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.learning-curve-header h3 {
+  margin: 0;
+  color: #f1f5f9;
+  font-size: 1.1rem;
+}
+
+.training-badge {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #1e293b;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.chart-container {
+  height: 200px;
+  margin-bottom: 16px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px 20px;
+  color: #94a3b8;
+}
+
+.no-data p {
+  margin: 8px 0;
+}
+
+.no-data .hint {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.learning-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-row {
+  display: flex;
+  gap: 8px;
+}
+
+.stat-box {
+  flex: 1;
+  background: rgba(51, 65, 85, 0.5);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.stat-box .stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.stat-box .stat-value {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.stat-box .stat-value.positive {
+  color: #4ade80;
+}
+
+.stat-box .stat-value.negative {
+  color: #f87171;
+}
+
+.learning-insight {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.learning-insight.improving {
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  color: #4ade80;
+}
+
+.learning-insight.stagnant {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
+}
+
+.learning-insight p {
+  margin: 0;
+}

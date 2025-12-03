@@ -1,5 +1,6 @@
 """
-Q-Learning Agent - Simple tabular Q-learning for Phase 1
+Q-Learning Agent - Phase 3
+Tabular Q-learning with expanded action space for tower types and upgrades
 Educational implementation - clarity over optimization
 """
 
@@ -11,12 +12,21 @@ from typing import Dict, List, Tuple, Optional
 
 class QLearningAgent:
     """
-    Simple tabular Q-learning for Phase 1.
-    Keep it readable for educational purposes!
+    Tabular Q-learning agent for Phase 3.
+
+    Phase 3 Actions:
+    - BUILD_ARCHER_LEFT/CENTER/RIGHT (3 actions)
+    - BUILD_CANNON_LEFT/CENTER/RIGHT (3 actions)
+    - BUILD_SLOW_LEFT/CENTER/RIGHT (3 actions)
+    - UPGRADE_OLDEST (1 action)
+    - SAVE (1 action)
+    - SELL_OLDEST (1 action)
+
+    Total: 12 actions
     """
 
     def __init__(self,
-                 n_actions=5,
+                 n_actions=12,
                  learning_rate=0.1,
                  discount_factor=0.95,
                  epsilon=0.1):
@@ -24,13 +34,11 @@ class QLearningAgent:
         Initialize Q-learning agent.
 
         Args:
-            n_actions: Number of possible actions (5 for Phase 1)
+            n_actions: Number of possible actions (12 for Phase 3)
             learning_rate: How fast the agent learns (α)
             discount_factor: How much to value future rewards (γ)
             epsilon: Exploration rate (ε)
         """
-        # Q-table: state -> action -> value
-        # Using defaultdict so new states automatically get 0 values
         self.q_table = defaultdict(lambda: defaultdict(float))
 
         self.n_actions = n_actions
@@ -38,11 +46,20 @@ class QLearningAgent:
         self.discount_factor = discount_factor
         self.epsilon = epsilon
 
-        # Action names for clarity
+        # Phase 3 Action names
         self.action_names = [
-            "BUILD_LEFT",
-            "BUILD_CENTER",
-            "BUILD_RIGHT",
+            # Tower building actions
+            "BUILD_ARCHER_LEFT",
+            "BUILD_ARCHER_CENTER",
+            "BUILD_ARCHER_RIGHT",
+            "BUILD_CANNON_LEFT",
+            "BUILD_CANNON_CENTER",
+            "BUILD_CANNON_RIGHT",
+            "BUILD_SLOW_LEFT",
+            "BUILD_SLOW_CENTER",
+            "BUILD_SLOW_RIGHT",
+            # Utility actions
+            "UPGRADE_OLDEST",
             "SAVE",
             "SELL_OLDEST"
         ]
@@ -56,10 +73,20 @@ class QLearningAgent:
         """
         Convert game state to string key for Q-table.
 
-        Phase 1: Simple discretization
-        Format: "state_gold_enemies_towers_wave_success"
+        Phase 3: Enhanced state encoding
+        Format: "state_gold_enemies_towers_wave_threat_slow"
         """
-        key = f"state_{state['gold_level']}_{state['enemies_on_field']}_{state['towers_built']}_{state['wave_progress']}_{state['last_action_success']}"
+        # Support both Phase 3 format and legacy formats
+        if 'threat_level' in state and 'has_slow_tower' in state:
+            # Phase 3 format
+            key = (f"state_{state['gold_level']}_{state['enemies_on_field']}_"
+                   f"{state['towers_built']}_{state['wave_progress']}_"
+                   f"{state['threat_level']}_{state['has_slow_tower']}")
+        else:
+            # Legacy Phase 1/2 format
+            key = (f"state_{state['gold_level']}_{state['enemies_on_field']}_"
+                   f"{state['towers_built']}_{state['wave_progress']}_"
+                   f"{state.get('last_action_success', 1)}")
         return key
 
     def get_action(self, state: Dict, valid_actions: Optional[List[int]] = None) -> Tuple[int, bool]:
@@ -77,7 +104,6 @@ class QLearningAgent:
         state_key = self.get_state_key(state)
         self.state_visits[state_key] += 1
 
-        # Get valid actions (all actions if not specified)
         if valid_actions is None:
             valid_actions = list(range(self.n_actions))
 
@@ -89,15 +115,12 @@ class QLearningAgent:
         # Exploitation: Choose best action
         q_values = self.q_table[state_key]
 
-        # Get Q-values for valid actions only
         valid_q = {a: q_values[a] for a in valid_actions}
 
-        # If all Q-values are 0 (unexplored), choose randomly
         if all(v == 0 for v in valid_q.values()):
             action_idx = random.choice(valid_actions)
             return action_idx, True
 
-        # Choose action with highest Q-value
         action_idx = max(valid_q.keys(), key=lambda a: valid_q[a])
         return action_idx, False
 
@@ -120,36 +143,28 @@ class QLearningAgent:
         state_key = self.get_state_key(state)
         next_state_key = self.get_state_key(next_state)
 
-        # Get current Q-value
         old_q = self.q_table[state_key][action]
 
-        # Get max Q-value for next state
         if done:
-            max_next_q = 0  # No future rewards if episode ended
+            max_next_q = 0
         else:
             next_q_values = self.q_table[next_state_key]
             max_next_q = max(next_q_values.values()) if next_q_values else 0
 
-        # Q-learning update formula
-        # Q(s,a) = Q(s,a) + α * [r + γ * max(Q(s',a')) - Q(s,a)]
+        # Q-learning update: Q(s,a) = Q(s,a) + α * [r + γ * max(Q(s',a')) - Q(s,a)]
         td_target = reward + self.discount_factor * max_next_q
         td_error = td_target - old_q
         new_q = old_q + self.learning_rate * td_error
 
-        # Update Q-table
         self.q_table[state_key][action] = new_q
 
-        # Track statistics
         self.action_counts[action] += 1
         self.total_steps += 1
 
         return old_q, new_q
 
     def decay_epsilon(self, decay_rate: float = 0.995, min_epsilon: float = 0.01):
-        """
-        Decay exploration rate over time.
-        Called after each episode.
-        """
+        """Decay exploration rate over time."""
         self.epsilon = max(min_epsilon, self.epsilon * decay_rate)
 
     def get_q_table_for_visualization(self) -> Dict:
@@ -172,18 +187,17 @@ class QLearningAgent:
                                          key=lambda x: x[1])[0] if self.state_visits else None,
                 "most_taken_action": self.action_names[max(self.action_counts.items(),
                                                            key=lambda x: x[1])[0]] if self.action_counts else None
-            }
+            },
+            "state_space_size": 486,  # Phase 3 state space
+            "states_visited": len(self.state_visits)
         }
 
-        # Convert Q-table to matrix format
         for state_key in sorted(self.q_table.keys()):
             viz_data["states"].append(state_key)
 
-            # Create human-readable label
             label = self._create_state_label(state_key)
             viz_data["state_labels"][state_key] = label
 
-            # Get Q-values for all actions
             row = []
             for action_idx in range(self.n_actions):
                 q_value = round(self.q_table[state_key][action_idx], 2)
@@ -193,27 +207,41 @@ class QLearningAgent:
         return viz_data
 
     def _create_state_label(self, state_key: str) -> str:
-        """
-        Create human-readable state label.
-
-        Example: "state_2_1_2_0_1" -> "Rich | Few enemies | Many towers | Early | Success"
-        """
+        """Create human-readable state label."""
         gold_labels = ["Poor", "Okay", "Rich"]
         enemy_labels = ["No enemies", "Few enemies", "Many enemies"]
         tower_labels = ["No towers", "Few towers", "Many towers"]
         wave_labels = ["Early", "Middle", "Late"]
-        success_labels = ["Failed", "Success"]
+        threat_labels = ["Low threat", "Medium threat", "High threat"]
+        slow_labels = ["No slow", "Has slow"]
 
         try:
-            parts = state_key.split('_')[1:]  # Remove "state" prefix
-            label = f"{gold_labels[int(parts[0])]} | "
-            label += f"{enemy_labels[int(parts[1])]} | "
-            label += f"{tower_labels[int(parts[2])]} | "
-            label += f"{wave_labels[int(parts[3])]} | "
-            label += f"{success_labels[int(parts[4])]}"
+            parts = state_key.split('_')[1:]
+
+            if len(parts) >= 6:
+                # Phase 3 format
+                label = f"{gold_labels[int(parts[0])]} | "
+                label += f"{enemy_labels[int(parts[1])]} | "
+                label += f"{tower_labels[int(parts[2])]} | "
+                label += f"{wave_labels[int(parts[3])]} | "
+                label += f"{threat_labels[int(parts[4])]} | "
+                label += f"{slow_labels[int(parts[5])]}"
+            else:
+                # Legacy format
+                label = f"{gold_labels[int(parts[0])]} | "
+                label += f"{enemy_labels[int(parts[1])]} | "
+                label += f"{tower_labels[int(parts[2])]} | "
+                label += f"{wave_labels[int(parts[3])]}"
             return label
         except (IndexError, ValueError):
             return "Unknown state"
+
+    def reset(self):
+        """Reset the agent for a new training session."""
+        self.q_table = defaultdict(lambda: defaultdict(float))
+        self.state_visits = defaultdict(int)
+        self.action_counts = defaultdict(int)
+        self.total_steps = 0
 
     def save(self, filepath: str):
         """Save Q-table and stats to file"""
@@ -224,7 +252,9 @@ class QLearningAgent:
             "state_visits": dict(self.state_visits),
             "action_counts": dict(self.action_counts),
             "learning_rate": self.learning_rate,
-            "discount_factor": self.discount_factor
+            "discount_factor": self.discount_factor,
+            "n_actions": self.n_actions,
+            "action_names": self.action_names
         }
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=2)
@@ -234,16 +264,17 @@ class QLearningAgent:
         with open(filepath, 'r') as f:
             data = json.load(f)
 
-        # Restore Q-table
         self.q_table = defaultdict(lambda: defaultdict(float))
         for state_key, actions in data["q_table"].items():
             for action_idx, q_value in actions.items():
                 self.q_table[state_key][int(action_idx)] = q_value
 
-        # Restore stats
         self.epsilon = data.get("epsilon", 0.1)
         self.total_steps = data.get("total_steps", 0)
         self.state_visits = defaultdict(int, {k: v for k, v in data.get("state_visits", {}).items()})
         self.action_counts = defaultdict(int, {int(k): v for k, v in data.get("action_counts", {}).items()})
         self.learning_rate = data.get("learning_rate", 0.1)
         self.discount_factor = data.get("discount_factor", 0.95)
+        self.n_actions = data.get("n_actions", 12)
+        if "action_names" in data:
+            self.action_names = data["action_names"]

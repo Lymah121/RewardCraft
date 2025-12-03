@@ -27,6 +27,22 @@
   gap: 10px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.phase-badge {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
 .status-indicator {
   padding: 8px 16px;
   border-radius: 20px;
@@ -52,6 +68,31 @@
   flex: 1;
 }
 
+/* Phase 2: 3-column layout */
+.app-layout-phase2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 380px;
+  gap: 20px;
+  padding: 20px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.column-left,
+.column-center,
+.column-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+.column-right {
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
 .left-panel, .right-panel {
   display: flex;
   flex-direction: column;
@@ -72,6 +113,17 @@
   justify-content: center;
   gap: 15px;
   flex-wrap: wrap;
+}
+
+.training-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.training-buttons button {
+  flex: 1;
+  min-width: 100px;
 }
 
 .button-primary {
@@ -221,6 +273,24 @@
 }
 
 /* Responsive design */
+@media (max-width: 1600px) {
+  .app-layout-phase2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .column-right {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    max-height: none;
+  }
+
+  .training-buttons {
+    grid-column: span 2;
+  }
+}
+
 @media (max-width: 1400px) {
   .app-layout {
     grid-template-columns: 1fr;
@@ -228,6 +298,18 @@
 
   .training-stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .app-layout-phase2 {
+    grid-template-columns: 1fr;
+  }
+
+  .column-right {
+    grid-column: span 1;
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -242,5 +324,13 @@
 
   .training-controls {
     flex-direction: column;
+  }
+
+  .training-buttons {
+    flex-direction: column;
+  }
+
+  .phase-badge {
+    display: none;
   }
 }

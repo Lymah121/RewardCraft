@@ -1,0 +1,244 @@
+/* Training Controls Component Styles */
+
+.training-controls-panel {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #334155;
+}
+
+.controls-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.controls-header h3 {
+  margin: 0;
+  color: #f1f5f9;
+  font-size: 1.1rem;
+}
+
+.reset-button {
+  background: transparent;
+  border: 1px solid #64748b;
+  color: #94a3b8;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reset-button:hover:not(:disabled) {
+  border-color: #94a3b8;
+  color: #f1f5f9;
+}
+
+.reset-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.controls-section {
+  margin-bottom: 16px;
+}
+
+.controls-section h4 {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+}
+
+.control-item {
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.control-header label {
+  color: #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.control-value {
+  color: #60a5fa;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: monospace;
+}
+
+.control-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #334155;
+  appearance: none;
+  cursor: pointer;
+}
+
+.control-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(96, 165, 250, 0.4);
+  transition: transform 0.2s;
+}
+
+.control-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.control-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.control-slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+}
+
+.tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+  z-index: 100;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tooltip-icon {
+  margin-right: 6px;
+}
+
+.advanced-toggle {
+  width: 100%;
+  background: rgba(51, 65, 85, 0.5);
+  border: 1px solid #475569;
+  color: #e2e8f0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  margin-bottom: 12px;
+}
+
+.advanced-toggle:hover {
+  background: rgba(51, 65, 85, 0.8);
+  border-color: #60a5fa;
+}
+
+.toggle-hint {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.controls-section.advanced {
+  background: rgba(51, 65, 85, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #475569;
+}
+
+.advanced-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 0.8rem;
+  color: #fbbf24;
+}
+
+.warning-icon {
+  font-size: 1rem;
+}
+
+.formula-box {
+  background: rgba(96, 165, 250, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.formula-box h5 {
+  margin: 0 0 8px 0;
+  color: #60a5fa;
+  font-size: 0.8rem;
+}
+
+.formula-box code {
+  display: block;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #f1f5f9;
+  font-family: 'Fira Code', 'Monaco', monospace;
+}
+
+.formula-explanation {
+  margin: 8px 0 0 0;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.training-active-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(251, 146, 60, 0.1);
+  border: 1px solid rgba(251, 146, 60, 0.3);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #fb923c;
+  margin-top: 12px;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #fb923c;
+  border-radius: 50%;
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}

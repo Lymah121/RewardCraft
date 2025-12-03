@@ -148,7 +148,6 @@ export const QTableHeatmap = ({
                     const cellKey = `${state}-${action}`;
                     const isCurrentCell = currentState === state && currentAction === action;
                     const isAnimating = animatingCells.has(cellKey);
-                    const isHovered = hoveredCell?.state === state && hoveredCell?.action === action;
 
                     return (
                       <td

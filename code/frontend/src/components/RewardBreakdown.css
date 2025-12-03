@@ -1,0 +1,253 @@
+/* Reward Breakdown Component Styles */
+
+.reward-breakdown {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #334155;
+}
+
+.breakdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.breakdown-header h3 {
+  margin: 0;
+  color: #f1f5f9;
+  font-size: 1.1rem;
+}
+
+.step-indicator {
+  background: rgba(96, 165, 250, 0.2);
+  color: #60a5fa;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-family: monospace;
+}
+
+.no-breakdown {
+  text-align: center;
+  padding: 30px 20px;
+  color: #94a3b8;
+}
+
+.no-breakdown p {
+  margin: 8px 0;
+}
+
+.no-breakdown .hint {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.current-breakdown h4,
+.cumulative-breakdown h4,
+.action-feed h4 {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px 0;
+}
+
+.reward-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reward-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.reward-item.positive {
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.reward-item.negative {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.reward-icon {
+  font-size: 1.2rem;
+  width: 32px;
+  text-align: center;
+}
+
+.reward-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.reward-label {
+  color: #f1f5f9;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.reward-desc {
+  color: #94a3b8;
+  font-size: 0.7rem;
+}
+
+.reward-value {
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.reward-value.positive {
+  color: #4ade80;
+}
+
+.reward-value.negative {
+  color: #f87171;
+}
+
+.no-rewards {
+  padding: 12px;
+  text-align: center;
+}
+
+.no-rewards .muted {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.total-reward {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.total-reward.positive {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+}
+
+.total-reward.negative {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+.total-value {
+  font-size: 1.2rem;
+  font-family: monospace;
+}
+
+.cumulative-breakdown {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #334155;
+}
+
+.cumulative-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cumulative-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(51, 65, 85, 0.5);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.cumulative-icon {
+  font-size: 0.9rem;
+}
+
+.cumulative-label {
+  color: #e2e8f0;
+}
+
+.cumulative-value {
+  font-family: monospace;
+  font-weight: 500;
+}
+
+.cumulative-value.positive {
+  color: #4ade80;
+}
+
+.cumulative-value.negative {
+  color: #f87171;
+}
+
+.action-feed {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #334155;
+}
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feed-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background: rgba(51, 65, 85, 0.3);
+  transition: all 0.2s;
+}
+
+.feed-item.latest {
+  background: rgba(96, 165, 250, 0.15);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.feed-step {
+  color: #64748b;
+  font-family: monospace;
+  min-width: 30px;
+}
+
+.feed-action {
+  flex: 1;
+  color: #e2e8f0;
+  font-family: monospace;
+}
+
+.feed-reward {
+  font-family: monospace;
+  font-weight: 500;
+}
+
+.feed-reward.positive {
+  color: #4ade80;
+}
+
+.feed-reward.negative {
+  color: #f87171;
+}

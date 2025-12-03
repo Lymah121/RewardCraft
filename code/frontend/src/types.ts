@@ -11,6 +11,15 @@ export interface RewardConfig {
   wave_completed: number;
   game_won?: number;
   game_lost?: number;
+  // Phase 3: Enemy type bonuses
+  boss_defeated?: number;
+  tanky_defeated?: number;
+  fast_defeated?: number;
+  // Phase 3: Tower type rewards
+  tower_upgraded?: number;
+  slow_tower_built?: number;
+  cannon_tower_built?: number;
+  archer_tower_built?: number;
 }
 
 export interface GameState {
@@ -32,6 +41,9 @@ export interface Enemy {
   position?: [number, number];
   hp: number;
   max_hp: number;
+  // Phase 3: Enemy type and status
+  type?: 'normal' | 'fast' | 'tanky' | 'boss';
+  is_slowed?: boolean;
 }
 
 export interface Tower {
@@ -43,6 +55,9 @@ export interface Tower {
   range?: number;
   damage?: number;
   kills?: number;
+  // Phase 3: Tower type and upgrade level
+  type?: 'archer' | 'cannon' | 'slow';
+  level?: number;
 }
 
 export interface QTableData {
