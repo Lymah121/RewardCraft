@@ -73,7 +73,9 @@ def test_q_learning():
     encoded_state = encoder.encode(game_state)
 
     # Get action
-    action_idx, was_exploration = agent.get_action(encoded_state)
+    valid_action_names = game.get_valid_actions()
+    valid_action_indices = agent.get_valid_action_indices(valid_action_names)
+    action_idx, was_exploration = agent.get_action(encoded_state, valid_action_indices)
     action = agent.action_names[action_idx]
     print(f"Chosen action: {action} (exploration={was_exploration})")
 
@@ -155,7 +157,7 @@ def test_full_episode():
 
         # Agent chooses action
         valid_action_names = game.get_valid_actions()
-        valid_action_indices = [agent.action_names.index(a) for a in valid_action_names]
+        valid_action_indices = agent.get_valid_action_indices(valid_action_names)
 
         action_idx, was_exploration = agent.get_action(encoded_state, valid_action_indices)
         action = agent.action_names[action_idx]

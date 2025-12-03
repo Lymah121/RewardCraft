@@ -12,7 +12,7 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from ai import QLearningAgent, RewardCalculator, TrainingCoordinator
+from ai import QLearningAgent, RewardCalculator, TrainingCoordinator, DEFAULT_ACTION_NAMES
 from game import TowerDefenseGame, StateEncoder
 
 # Request/Response models
@@ -81,10 +81,11 @@ def _initialize_components(reward_config: Optional[RewardConfig] = None):
     global _agent, _state_encoder, _reward_calculator, _trainer
 
     _agent = QLearningAgent(
-        n_actions=5,
+        n_actions=len(DEFAULT_ACTION_NAMES),
         learning_rate=0.1,
         discount_factor=0.95,
-        epsilon=0.1
+        epsilon=0.1,
+        action_names=DEFAULT_ACTION_NAMES
     )
 
     _state_encoder = StateEncoder()
@@ -242,6 +243,8 @@ async def get_training_history():
 @router.get("/info")
 async def get_info():
     """Get general information about the game and AI"""
+    state_space_size = _state_encoder.get_state_space_size() if _state_encoder else StateEncoder().get_state_space_size()
+
     return {
         "game": {
             "grid_size": "10x10",
@@ -252,14 +255,8 @@ async def get_info():
         },
         "ai": {
             "algorithm": "Tabular Q-Learning",
-            "state_space_size": 162,
-            "actions": [
-                "BUILD_LEFT",
-                "BUILD_CENTER",
-                "BUILD_RIGHT",
-                "SAVE",
-                "SELL_OLDEST"
-            ],
+            "state_space_size": state_space_size,
+            "actions": DEFAULT_ACTION_NAMES,
             "learning_rate": 0.1,
             "discount_factor": 0.95,
             "epsilon": 0.1

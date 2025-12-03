@@ -13,7 +13,7 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from ai import QLearningAgent, RewardCalculator, TrainingCoordinator
+from ai import QLearningAgent, RewardCalculator, TrainingCoordinator, DEFAULT_ACTION_NAMES
 from game import StateEncoder
 
 # Store the event loop for thread-safe callback
@@ -155,13 +155,16 @@ async def handle_start_training(websocket: WebSocket, data: Dict):
         num_episodes = data.get("num_episodes", 100)
         reward_config = data.get("reward_config", {})
         speed_multiplier = data.get("speed_multiplier", 1.0)
+        epsilon_decay = data.get("epsilon_decay", 0.995)
+        min_epsilon = data.get("min_epsilon", 0.01)
 
         # Initialize components
         agent = QLearningAgent(
-            n_actions=5,
+            n_actions=len(DEFAULT_ACTION_NAMES),
             learning_rate=data.get("learning_rate", 0.1),
             discount_factor=data.get("discount_factor", 0.95),
-            epsilon=data.get("epsilon", 0.1)
+            epsilon=data.get("epsilon", 0.1),
+            action_names=DEFAULT_ACTION_NAMES
         )
 
         state_encoder = StateEncoder()
@@ -185,7 +188,7 @@ async def handle_start_training(websocket: WebSocket, data: Dict):
 
         # Start training in background task
         _training_task = asyncio.create_task(
-            run_training_async(num_episodes, speed_multiplier)
+            run_training_async(num_episodes, speed_multiplier, epsilon_decay, min_epsilon)
         )
 
     except Exception as e:
@@ -195,7 +198,7 @@ async def handle_start_training(websocket: WebSocket, data: Dict):
         })
 
 
-async def run_training_async(num_episodes: int, speed_multiplier: float):
+async def run_training_async(num_episodes: int, speed_multiplier: float, epsilon_decay: float, min_epsilon: float):
     """Run training in async context"""
     global _current_trainer
 
@@ -204,7 +207,9 @@ async def run_training_async(num_episodes: int, speed_multiplier: float):
         summary = await asyncio.to_thread(
             _current_trainer.train,
             num_episodes=num_episodes,
-            speed_multiplier=speed_multiplier
+            speed_multiplier=speed_multiplier,
+            epsilon_decay=epsilon_decay,
+            min_epsilon=min_epsilon
         )
 
         # Send final summary

@@ -24,8 +24,8 @@ def test_info_endpoint():
     response = client.get("/api/info")
     assert response.status_code == 200
     data = response.json()
-    assert data["ai"]["state_space_size"] == 162
-    assert len(data["ai"]["actions"]) == 5
+    assert data["ai"]["state_space_size"] == 486
+    assert len(data["ai"]["actions"]) >= 12  # Phase 3 expanded action set
     print("✅ Info endpoint passed")
 
 
@@ -35,7 +35,7 @@ def test_initialize():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "initialized"
-    assert data["state_space_size"] == 162
+    assert data["state_space_size"] == 486
     print("✅ Initialize passed")
 
 
@@ -75,7 +75,7 @@ def test_q_table():
     response = client.get("/api/ai/q-table")
     assert response.status_code == 200
     data = response.json()
-    assert data["state_space_size"] == 162
+    assert data["state_space_size"] == 486
     assert data["states_visited"] == 0  # No training yet
     print("✅ Q-table endpoint passed")
 

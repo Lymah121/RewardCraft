@@ -9,6 +9,22 @@ import json
 from collections import defaultdict
 from typing import Dict, List, Tuple, Optional
 
+# Unified Phase 3 action set (keep in sync across backend components)
+DEFAULT_ACTION_NAMES: List[str] = [
+    "BUILD_ARCHER_LEFT",
+    "BUILD_ARCHER_CENTER",
+    "BUILD_ARCHER_RIGHT",
+    "BUILD_CANNON_LEFT",
+    "BUILD_CANNON_CENTER",
+    "BUILD_CANNON_RIGHT",
+    "BUILD_SLOW_LEFT",
+    "BUILD_SLOW_CENTER",
+    "BUILD_SLOW_RIGHT",
+    "UPGRADE_OLDEST",
+    "SAVE",
+    "SELL_OLDEST",
+]
+
 
 class QLearningAgent:
     """
@@ -26,43 +42,30 @@ class QLearningAgent:
     """
 
     def __init__(self,
-                 n_actions=12,
-                 learning_rate=0.1,
-                 discount_factor=0.95,
-                 epsilon=0.1):
+                 n_actions: int = 12,
+                 learning_rate: float = 0.1,
+                 discount_factor: float = 0.95,
+                 epsilon: float = 0.1,
+                 action_names: Optional[List[str]] = None):
         """
         Initialize Q-learning agent.
 
         Args:
-            n_actions: Number of possible actions (12 for Phase 3)
+            n_actions: Number of possible actions (ignored when action_names provided)
             learning_rate: How fast the agent learns (α)
             discount_factor: How much to value future rewards (γ)
             epsilon: Exploration rate (ε)
+            action_names: Optional explicit action list
         """
         self.q_table = defaultdict(lambda: defaultdict(float))
 
-        self.n_actions = n_actions
+        self.action_names = action_names or DEFAULT_ACTION_NAMES
+        self.n_actions = len(self.action_names) if action_names else n_actions
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.epsilon = epsilon
-
-        # Phase 3 Action names
-        self.action_names = [
-            # Tower building actions
-            "BUILD_ARCHER_LEFT",
-            "BUILD_ARCHER_CENTER",
-            "BUILD_ARCHER_RIGHT",
-            "BUILD_CANNON_LEFT",
-            "BUILD_CANNON_CENTER",
-            "BUILD_CANNON_RIGHT",
-            "BUILD_SLOW_LEFT",
-            "BUILD_SLOW_CENTER",
-            "BUILD_SLOW_RIGHT",
-            # Utility actions
-            "UPGRADE_OLDEST",
-            "SAVE",
-            "SELL_OLDEST"
-        ]
+        self.initial_epsilon = epsilon
+        self.action_to_index = {name: idx for idx, name in enumerate(self.action_names)}
 
         # Tracking for visualization
         self.state_visits = defaultdict(int)
@@ -89,6 +92,10 @@ class QLearningAgent:
                    f"{state.get('last_action_success', 1)}")
         return key
 
+    def get_valid_action_indices(self, valid_action_names: List[str]) -> List[int]:
+        """Translate action names from the game into agent indices"""
+        return [self.action_to_index[a] for a in valid_action_names if a in self.action_to_index]
+
     def get_action(self, state: Dict, valid_actions: Optional[List[int]] = None) -> Tuple[int, bool]:
         """
         Choose action using epsilon-greedy strategy.
@@ -106,6 +113,9 @@ class QLearningAgent:
 
         if valid_actions is None:
             valid_actions = list(range(self.n_actions))
+        elif len(valid_actions) == 0:
+            # Fallback to SAVE if no valid list provided
+            valid_actions = [self.action_to_index.get("SAVE", 0)]
 
         # Exploration: Choose random action
         if random.random() < self.epsilon:
@@ -188,8 +198,6 @@ class QLearningAgent:
                 "most_taken_action": self.action_names[max(self.action_counts.items(),
                                                            key=lambda x: x[1])[0]] if self.action_counts else None
             },
-            "state_space_size": 486,  # Phase 3 state space
-            "states_visited": len(self.state_visits)
         }
 
         for state_key in sorted(self.q_table.keys()):
@@ -242,6 +250,7 @@ class QLearningAgent:
         self.state_visits = defaultdict(int)
         self.action_counts = defaultdict(int)
         self.total_steps = 0
+        self.epsilon = self.initial_epsilon
 
     def save(self, filepath: str):
         """Save Q-table and stats to file"""

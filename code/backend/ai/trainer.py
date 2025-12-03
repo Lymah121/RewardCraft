@@ -61,7 +61,9 @@ class TrainingCoordinator:
         self,
         num_episodes: int = 100,
         max_steps_per_episode: int = 1000,
-        speed_multiplier: float = 1.0
+        speed_multiplier: float = 1.0,
+        epsilon_decay: float = 0.995,
+        min_epsilon: float = 0.01
     ) -> Dict:
         """
         Run a training session for multiple episodes.
@@ -70,6 +72,8 @@ class TrainingCoordinator:
             num_episodes: Number of episodes to train
             max_steps_per_episode: Maximum steps before episode timeout
             speed_multiplier: Speed up factor (1.0 = normal, 2.0 = 2x faster)
+            epsilon_decay: Multiplicative decay for exploration rate each episode
+            min_epsilon: Lower bound for exploration rate
 
         Returns:
             Training statistics summary
@@ -105,6 +109,9 @@ class TrainingCoordinator:
                     'victory': episode_result['victory'],
                     'statistics': self._get_current_stats()
                 })
+
+            # Decay exploration after each episode
+            self.agent.decay_epsilon(decay_rate=epsilon_decay, min_epsilon=min_epsilon)
 
         self.is_training = False
         return self._get_training_summary()
@@ -144,8 +151,10 @@ class TrainingCoordinator:
             })
 
         while not done and steps < max_steps:
-            # Agent chooses action (get_action returns (action_idx, was_exploration))
-            action, was_exploration = self.agent.get_action(state)
+            # Restrict actions to what the game currently allows
+            valid_action_names = game.get_valid_actions()
+            valid_action_indices = self.agent.get_valid_action_indices(valid_action_names)
+            action, was_exploration = self.agent.get_action(state, valid_action_indices)
             action_name = self.agent.action_names[action]
 
             # Execute action in game
