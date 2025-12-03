@@ -7,6 +7,7 @@ from typing import Dict, List, Callable, Optional
 import sys
 from pathlib import Path
 import time
+import logging
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -57,6 +58,10 @@ class TrainingCoordinator:
         self.current_episode = 0
         self.total_episodes = 0
 
+        # Diagnostics
+        self.action_trace: List[str] = []
+        self.logger = logging.getLogger("training")
+
     def train(
         self,
         num_episodes: int = 100,
@@ -78,6 +83,17 @@ class TrainingCoordinator:
         Returns:
             Training statistics summary
         """
+        # Configure logging once per training run
+        if not self.logger.handlers:
+            logs_dir = Path(__file__).parent.parent / "logs"
+            logs_dir.mkdir(exist_ok=True)
+            log_path = logs_dir / "training.log"
+            handler = logging.FileHandler(log_path, mode="a", encoding="utf-8")
+            formatter = logging.Formatter("%(asctime)s - %(message)s")
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+            self.logger.setLevel(logging.INFO)
+
         self.is_training = True
         self.total_episodes = num_episodes
 
@@ -110,6 +126,10 @@ class TrainingCoordinator:
                     'statistics': self._get_current_stats()
                 })
 
+            # Persist episode diagnostics to log for post-mortem analysis
+            episode_result["episode"] = self.current_episode
+            self._log_episode_summary(episode_result)
+
             # Decay exploration after each episode
             self.agent.decay_epsilon(decay_rate=epsilon_decay, min_epsilon=min_epsilon)
 
@@ -135,6 +155,7 @@ class TrainingCoordinator:
         total_reward = 0.0
         steps = 0
         done = False
+        self.action_trace = []
 
         # Get initial state
         game_state = game.get_state()
@@ -156,6 +177,7 @@ class TrainingCoordinator:
             valid_action_indices = self.agent.get_valid_action_indices(valid_action_names)
             action, was_exploration = self.agent.get_action(state, valid_action_indices)
             action_name = self.agent.action_names[action]
+            self.action_trace.append(action_name)
 
             # Execute action in game
             old_game_state = game.get_state()
@@ -257,7 +279,11 @@ class TrainingCoordinator:
             'victory': victory,
             'steps': steps,
             'final_lives': game.lives,
-            'final_gold': game.gold
+            'final_gold': game.gold,
+            'final_wave': game.current_wave + 1,
+            'actions_taken': self.action_trace.copy(),
+            'towers_built': len(game.towers),
+            'game_over_reason': 'victory' if game.victory else ('defeat' if game.defeat else 'max_steps'),
         }
 
     def stop_training(self):
@@ -316,6 +342,7 @@ class TrainingCoordinator:
         self.current_episode = 0
         self.total_episodes = 0
         self.agent.reset()
+        self.action_trace = []
 
     def get_current_progress(self) -> Dict:
         """Get current training progress for status checks"""
@@ -326,3 +353,25 @@ class TrainingCoordinator:
             'progress_percent': (self.current_episode / self.total_episodes * 100) if self.total_episodes > 0 else 0,
             'stats': self._get_current_stats()
         }
+
+    def _log_episode_summary(self, episode_result: Dict):
+        """Log key diagnostics for an episode to help debug win rate."""
+        actions = episode_result.get('actions_taken', [])
+        action_counts: Dict[str, int] = {}
+        for a in actions:
+            action_counts[a] = action_counts.get(a, 0) + 1
+
+        self.logger.info(
+            "Episode %s/%s | victory=%s | wave=%s | lives=%s | gold=%s | reward=%.2f | steps=%s | towers=%s | reason=%s | actions=%s",
+            episode_result.get('episode'),
+            self.total_episodes,
+            episode_result.get('victory'),
+            episode_result.get('final_wave'),
+            episode_result.get('final_lives'),
+            episode_result.get('final_gold'),
+            episode_result.get('total_reward'),
+            episode_result.get('steps'),
+            episode_result.get('towers_built'),
+            episode_result.get('game_over_reason'),
+            action_counts,
+        )
