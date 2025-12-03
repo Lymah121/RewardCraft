@@ -238,3 +238,92 @@ Note: Presets are currently defined client-side, so this is optional unless we w
 | 💰 Gold Hoarder | Demonstrates specification gaming | gold_saved: 5, tower_built: -10 (agent hoards gold, fails to defend) |
 | 🛡️ Defensive | Shows defensive strategy | enemy_reached_base: -150, slow_tower_built: 10 |
 | ⚖️ Balanced | Baseline comparison | Moderate values across all rewards |
+
+---
+
+## URGENT: Agent Not Winning - Debugging Task
+
+**Problem**: User has run 50, 100, and now 500 episodes but the agent NEVER wins. This needs investigation.
+
+### [Codex] - URGENT PRIORITY 🚨
+
+**Task 1: Add Training Logs**
+Create a logging system so we can see what's happening during training.
+
+**File to create**: `/code/backend/logs/` directory with training logs
+
+**What to log** (per episode):
+```
+Episode X:
+- Final wave reached: X/5
+- Total reward: XXX
+- Victory: Yes/No
+- Lives remaining: X
+- Towers built: X (types: archer/cannon/slow)
+- Gold at end: X
+- Actions taken: [list of actions]
+- Why game ended: (lives=0 | all waves cleared)
+```
+
+**File to modify**: `/code/backend/api/training.py` or wherever training loop runs
+
+Add logging like:
+```python
+import logging
+logging.basicConfig(
+    filename='logs/training.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(message)s'
+)
+```
+
+**Task 2: Investigate Why No Wins**
+
+Check these potential issues:
+
+1. **Is the game winnable at all?**
+   - Run a manual/scripted test that builds optimal towers
+   - Verify 5 waves can actually be beaten
+
+2. **Is game_won event firing?**
+   - Check `/code/backend/game/engine.py` - does it set `game_won: True`?
+   - Is victory condition correct? (all 5 waves cleared AND lives > 0)
+
+3. **Is reward reaching the agent?**
+   - Log reward breakdown each step
+   - Verify `game_won: 500` reward is being applied
+
+4. **State space issues?**
+   - Is the agent seeing wave 5 states at all?
+   - Log unique states visited per episode
+
+5. **Action validity?**
+   - Are valid_actions being filtered correctly?
+   - Is the agent stuck choosing SAVE repeatedly?
+
+**Task 3: Quick Diagnostic Script**
+
+Create `/code/backend/scripts/diagnose_training.py`:
+```python
+# Run 10 episodes with verbose logging
+# Print summary: max wave reached, actions distribution, reward breakdown
+```
+
+### Expected Output
+
+After Codex completes this, we should have:
+1. A log file showing exactly what happens each episode
+2. Diagnosis of WHY the agent never wins
+3. Recommended fix (reward values? game bug? training params?)
+
+---
+
+### User's Training Attempts (for reference)
+
+| Episodes | Win Rate | Notes |
+|----------|----------|-------|
+| 50 | 0% | High rewards (~2766 avg) but no wins |
+| 100 | 0% | Still no wins |
+| 500 | 0% | Currently running, still no wins |
+
+**This suggests a fundamental issue** - not just insufficient training time.
