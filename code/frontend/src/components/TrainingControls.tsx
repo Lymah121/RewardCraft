@@ -1,7 +1,12 @@
 /**
- * Training Controls Component
+ * Training Controls Component - Phase 3
  * Advanced controls for training speed and hyperparameters
  * Helps students understand how different parameters affect learning
+ *
+ * Visual design:
+ * - Cyberpunk aesthetic with styled inputs
+ * - Interactive tooltips
+ * - Collapsible advanced section
  */
 
 import { useState } from 'react';
@@ -75,13 +80,15 @@ export const TrainingControls = ({
 
     return (
       <div
-        className="control-item"
+        className="relative group mb-4"
         onMouseEnter={() => setActiveTooltip(key)}
         onMouseLeave={() => setActiveTooltip(null)}
       >
-        <div className="control-header">
-          <label>{label}</label>
-          <span className="control-value">{displayValue}</span>
+        <div className="flex justify-between items-center mb-1">
+          <label className="text-sm font-medium text-gray-300 group-hover:text-neon-blue transition-colors">
+            {label}
+          </label>
+          <span className="font-mono text-neon-blue font-bold text-sm">{displayValue}</span>
         </div>
         <input
           type="range"
@@ -91,12 +98,13 @@ export const TrainingControls = ({
           value={value}
           onChange={(e) => handleChange(key, parseFloat(e.target.value))}
           disabled={disabled || isTraining}
-          className="control-slider"
+          className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-neon-blue hover:accent-cyan-300 disabled:opacity-50 disabled:cursor-not-allowed"
         />
         {activeTooltip === key && (
-          <div className="tooltip">
-            <span className="tooltip-icon">💡</span>
+          <div className="absolute z-50 bottom-full left-0 mb-2 p-2 bg-gray-900 border border-neon-blue/30 rounded shadow-xl text-xs text-gray-200 w-64 pointer-events-none backdrop-blur-md">
+            <span className="mr-1">💡</span>
             {TOOLTIPS[key]}
+            <div className="absolute bottom-0 left-4 transform translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900 border-r border-b border-neon-blue/30"></div>
           </div>
         )}
       </div>
@@ -104,20 +112,22 @@ export const TrainingControls = ({
   };
 
   return (
-    <div className="training-controls-panel">
-      <div className="controls-header">
-        <h3>⚙️ Training Settings</h3>
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">
+          <span className="text-2xl">⚙️</span> Settings
+        </h3>
         <button
-          className="reset-button"
+          className="text-xs text-gray-400 hover:text-white underline disabled:opacity-50"
           onClick={resetToDefaults}
           disabled={disabled || isTraining}
         >
-          Reset
+          Reset Defaults
         </button>
       </div>
 
-      <div className="controls-section">
-        <h4>Basic Settings</h4>
+      <div className="space-y-2">
+        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Basic Settings</h4>
 
         {renderSlider(
           'numEpisodes',
@@ -131,7 +141,7 @@ export const TrainingControls = ({
           'Training Speed',
           0.5, 10, 0.5, 'x',
           (v) => {
-            if (v <= 1) return `${v}x (Watch mode)`;
+            if (v <= 1) return `${v}x (Watch)`;
             if (v <= 2) return `${v}x (Normal)`;
             if (v <= 5) return `${v}x (Fast)`;
             return `${v}x (Turbo)`;
@@ -139,65 +149,64 @@ export const TrainingControls = ({
         )}
       </div>
 
-      <button
-        className="advanced-toggle"
-        onClick={() => setShowAdvanced(!showAdvanced)}
-      >
-        {showAdvanced ? '▼' : '▶'} Advanced Hyperparameters
-        <span className="toggle-hint">
-          {showAdvanced ? 'Hide' : 'Show Q-Learning parameters'}
-        </span>
-      </button>
+      <div className="mt-4 pt-4 border-t border-white/10">
+        <button
+          className="flex items-center gap-2 text-sm font-bold text-neon-purple hover:text-purple-300 transition-colors w-full"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+        >
+          <span className={`transform transition-transform ${showAdvanced ? 'rotate-90' : ''}`}>▶</span>
+          Advanced Hyperparameters
+        </button>
 
-      {showAdvanced && (
-        <div className="controls-section advanced">
-          <div className="advanced-warning">
-            <span className="warning-icon">🧪</span>
-            <span>These parameters control how the Q-Learning algorithm works. Experiment to see their effects!</span>
+        {showAdvanced && (
+          <div className="mt-4 space-y-4 animate-fadeIn">
+            <div className="bg-neon-purple/10 border border-neon-purple/20 rounded p-3 text-xs text-purple-200 mb-4 flex gap-2">
+              <span className="text-lg">🧪</span>
+              <span>These parameters control how the Q-Learning algorithm works. Experiment to see their effects!</span>
+            </div>
+
+            {renderSlider(
+              'learningRate',
+              'Learning Rate (α)',
+              0.01, 1.0, 0.01, '',
+              (v) => v.toFixed(2)
+            )}
+
+            {renderSlider(
+              'discountFactor',
+              'Discount Factor (γ)',
+              0.5, 0.99, 0.01, '',
+              (v) => v.toFixed(2)
+            )}
+
+            {renderSlider(
+              'epsilon',
+              'Initial Exploration (ε)',
+              0.1, 1.0, 0.05, '',
+              (v) => `${(v * 100).toFixed(0)}%`
+            )}
+
+            {renderSlider(
+              'epsilonDecay',
+              'Exploration Decay',
+              0.9, 0.999, 0.001, '',
+              (v) => v.toFixed(3)
+            )}
+
+            <div className="bg-black/30 rounded p-3 font-mono text-xs text-gray-400 border border-white/5 mt-4">
+              <h5 className="font-bold text-gray-300 mb-1">Q-Learning Formula</h5>
+              <code className="text-neon-green block mb-2">Q(s,a) ← Q(s,a) + α[r + γ·max(Q(s',a')) - Q(s,a)]</code>
+              <p className="opacity-70">
+                The AI updates its knowledge by combining what it knew before with the new reward received.
+              </p>
+            </div>
           </div>
-
-          {renderSlider(
-            'learningRate',
-            'Learning Rate (α)',
-            0.01, 1.0, 0.01, '',
-            (v) => v.toFixed(2)
-          )}
-
-          {renderSlider(
-            'discountFactor',
-            'Discount Factor (γ)',
-            0.5, 0.99, 0.01, '',
-            (v) => v.toFixed(2)
-          )}
-
-          {renderSlider(
-            'epsilon',
-            'Initial Exploration (ε)',
-            0.1, 1.0, 0.05, '',
-            (v) => `${(v * 100).toFixed(0)}%`
-          )}
-
-          {renderSlider(
-            'epsilonDecay',
-            'Exploration Decay',
-            0.9, 0.999, 0.001, '',
-            (v) => v.toFixed(3)
-          )}
-
-          <div className="formula-box">
-            <h5>Q-Learning Formula</h5>
-            <code>Q(s,a) ← Q(s,a) + α[r + γ·max(Q(s',a')) - Q(s,a)]</code>
-            <p className="formula-explanation">
-              The AI updates its knowledge by combining what it knew before with the new reward received.
-            </p>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {isTraining && (
-        <div className="training-active-notice">
-          <span className="pulse-dot"></span>
-          Settings locked during training
+        <div className="mt-4 p-2 bg-neon-blue/10 border border-neon-blue/30 rounded text-center text-xs text-neon-blue animate-pulse">
+          🔒 Settings locked during training
         </div>
       )}
     </div>

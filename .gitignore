@@ -95,3 +95,8 @@ saved_models/
 
 # Local development copies
 /rewardcraft-local/
+
+# Large PowerPoint files
+*.pptx
+docs/Halimat'sRewardcraft.pptx
+presentations/slides/rewardcraft.pptx

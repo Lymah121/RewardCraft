@@ -1,7 +1,12 @@
 /**
- * Learning Curve Component
+ * Learning Curve Component - Phase 3
  * Visualizes episode rewards over training time
  * Helps students understand how the AI improves (or doesn't) based on their reward design
+ *
+ * Visual design:
+ * - Cyberpunk aesthetic with Chart.js
+ * - Neon colors for data lines
+ * - Glassmorphism stats panels
  */
 
 import {
@@ -81,21 +86,22 @@ export const LearningCurve = ({
       {
         label: 'Episode Reward',
         data: episodeRewards,
-        borderColor: 'rgba(96, 165, 250, 0.6)',
-        backgroundColor: 'rgba(96, 165, 250, 0.1)',
-        pointRadius: episodeRewards.length > 50 ? 0 : 3,
-        pointHoverRadius: 5,
+        borderColor: 'rgba(6, 182, 212, 0.4)', // Neon Blue low opacity
+        backgroundColor: 'rgba(6, 182, 212, 0.05)',
+        pointRadius: episodeRewards.length > 50 ? 0 : 2,
+        pointHoverRadius: 4,
         borderWidth: 1,
         tension: 0.1,
+        fill: true,
       },
       {
         label: 'Moving Average (10 eps)',
         data: movingAverage,
-        borderColor: '#f59e0b',
+        borderColor: '#f59e0b', // Neon Yellow
         backgroundColor: 'transparent',
         pointRadius: 0,
         borderWidth: 2,
-        tension: 0.3,
+        tension: 0.4,
       },
     ],
   };
@@ -111,19 +117,24 @@ export const LearningCurve = ({
       legend: {
         position: 'top' as const,
         labels: {
-          color: '#e5e7eb',
-          font: { size: 11 },
+          color: '#9ca3af',
+          font: { family: 'JetBrains Mono', size: 10 },
+          usePointStyle: true,
+          boxWidth: 6,
         },
       },
       title: {
         display: false,
       },
       tooltip: {
-        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
         titleColor: '#f3f4f6',
         bodyColor: '#e5e7eb',
-        borderColor: '#4b5563',
+        borderColor: 'rgba(6, 182, 212, 0.3)',
         borderWidth: 1,
+        padding: 10,
+        titleFont: { family: 'JetBrains Mono' },
+        bodyFont: { family: 'JetBrains Mono' },
         callbacks: {
           afterBody: (context: any) => {
             const idx = context[0]?.dataIndex;
@@ -140,94 +151,111 @@ export const LearningCurve = ({
         title: {
           display: true,
           text: 'Episode',
-          color: '#9ca3af',
+          color: '#64748b',
+          font: { size: 10 },
         },
         ticks: {
-          color: '#9ca3af',
-          maxTicksLimit: 10,
+          color: '#64748b',
+          maxTicksLimit: 8,
+          font: { family: 'JetBrains Mono', size: 9 },
         },
         grid: {
-          color: 'rgba(75, 85, 99, 0.3)',
+          color: 'rgba(255, 255, 255, 0.05)',
         },
       },
       y: {
         title: {
           display: true,
           text: 'Reward',
-          color: '#9ca3af',
+          color: '#64748b',
+          font: { size: 10 },
         },
         ticks: {
-          color: '#9ca3af',
+          color: '#64748b',
+          font: { family: 'JetBrains Mono', size: 9 },
         },
         grid: {
-          color: 'rgba(75, 85, 99, 0.3)',
+          color: 'rgba(255, 255, 255, 0.05)',
         },
       },
     },
   };
 
   return (
-    <div className="learning-curve">
-      <div className="learning-curve-header">
-        <h3>📈 Learning Curve</h3>
-        {isTraining && <span className="training-badge">Training...</span>}
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">
+          <span className="text-2xl">📈</span> Learning Curve
+        </h3>
+        {isTraining && (
+          <span className="px-2 py-0.5 bg-neon-blue/20 text-neon-blue border border-neon-blue/50 rounded text-xs animate-pulse">
+            Training...
+          </span>
+        )}
       </div>
 
       {episodeRewards.length === 0 ? (
-        <div className="no-data">
-          <p>No training data yet</p>
-          <p className="hint">Start training to see the AI's learning progress!</p>
+        <div className="flex flex-col items-center justify-center flex-grow text-gray-400 border border-dashed border-gray-700 rounded-lg bg-black/20">
+          <div className="text-4xl mb-2 opacity-50">📊</div>
+          <p className="font-medium">No training data yet</p>
+          <p className="text-xs opacity-60 mt-1">Start training to see progress!</p>
         </div>
       ) : (
         <>
-          <div className="chart-container">
+          <div className="flex-grow min-h-[200px] mb-4 bg-black/20 rounded-lg p-2 border border-white/5">
             <Line data={data} options={options} />
           </div>
 
-          <div className="learning-stats">
-            <div className="stat-row">
-              <div className="stat-box">
-                <span className="stat-label">Episodes</span>
-                <span className="stat-value">{stats.totalEpisodes}</span>
-              </div>
-              <div className="stat-box">
-                <span className="stat-label">Win Rate</span>
-                <span className={`stat-value ${stats.winRate >= 50 ? 'positive' : 'negative'}`}>
-                  {stats.winRate.toFixed(1)}%
-                </span>
-              </div>
-              <div className="stat-box">
-                <span className="stat-label">Avg Reward</span>
-                <span className={`stat-value ${stats.avgReward >= 0 ? 'positive' : 'negative'}`}>
-                  {stats.avgReward.toFixed(1)}
-                </span>
-              </div>
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="bg-white/5 rounded p-2 border border-white/5">
+              <span className="text-xs text-gray-400 block uppercase tracking-wider">Episodes</span>
+              <span className="text-lg font-mono font-bold text-white">{stats.totalEpisodes}</span>
             </div>
-            <div className="stat-row">
-              <div className="stat-box">
-                <span className="stat-label">Best</span>
-                <span className="stat-value positive">{stats.bestReward.toFixed(1)}</span>
-              </div>
-              <div className="stat-box">
-                <span className="stat-label">Worst</span>
-                <span className="stat-value negative">{stats.worstReward.toFixed(1)}</span>
-              </div>
-              <div className="stat-box">
-                <span className="stat-label">Recent (10)</span>
-                <span className={`stat-value ${stats.recentAvg >= stats.avgReward ? 'positive' : 'negative'}`}>
-                  {stats.recentAvg.toFixed(1)}
-                </span>
-              </div>
+            <div className="bg-white/5 rounded p-2 border border-white/5">
+              <span className="text-xs text-gray-400 block uppercase tracking-wider">Win Rate</span>
+              <span className={`text-lg font-mono font-bold ${stats.winRate >= 50 ? 'text-neon-green' : 'text-neon-red'}`}>
+                {stats.winRate.toFixed(1)}%
+              </span>
+            </div>
+            <div className="bg-white/5 rounded p-2 border border-white/5">
+              <span className="text-xs text-gray-400 block uppercase tracking-wider">Avg Reward</span>
+              <span className={`text-lg font-mono font-bold ${stats.avgReward >= 0 ? 'text-neon-green' : 'text-neon-red'}`}>
+                {stats.avgReward.toFixed(1)}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-white/5 rounded p-2 border border-white/5">
+              <span className="text-xs text-gray-400 block uppercase tracking-wider">Best</span>
+              <span className="text-sm font-mono font-bold text-neon-green">{stats.bestReward.toFixed(1)}</span>
+            </div>
+            <div className="bg-white/5 rounded p-2 border border-white/5">
+              <span className="text-xs text-gray-400 block uppercase tracking-wider">Worst</span>
+              <span className="text-sm font-mono font-bold text-neon-red">{stats.worstReward.toFixed(1)}</span>
+            </div>
+            <div className="bg-white/5 rounded p-2 border border-white/5">
+              <span className="text-xs text-gray-400 block uppercase tracking-wider">Recent (10)</span>
+              <span className={`text-sm font-mono font-bold ${stats.recentAvg >= stats.avgReward ? 'text-neon-green' : 'text-neon-red'}`}>
+                {stats.recentAvg.toFixed(1)}
+              </span>
             </div>
           </div>
 
           {episodeRewards.length >= 20 && (
-            <div className={`learning-insight ${isImproving ? 'improving' : 'stagnant'}`}>
-              {isImproving ? (
-                <p>📈 <strong>The AI is improving!</strong> The moving average is trending upward.</p>
-              ) : (
-                <p>🤔 <strong>Learning seems stuck.</strong> Consider adjusting your reward function to give clearer feedback.</p>
-              )}
+            <div className={`mt-4 p-3 rounded border text-sm flex items-start gap-2 ${isImproving
+                ? 'bg-neon-green/10 border-neon-green/30 text-neon-green'
+                : 'bg-neon-yellow/10 border-neon-yellow/30 text-neon-yellow'
+              }`}>
+              <span className="text-lg">{isImproving ? '📈' : '🤔'}</span>
+              <div>
+                <strong className="block mb-0.5">{isImproving ? 'Improving!' : 'Stuck?'}</strong>
+                <span className="opacity-80 text-xs">
+                  {isImproving
+                    ? 'The moving average is trending upward. Good job!'
+                    : 'Learning seems stuck. Try adjusting rewards to give clearer feedback.'}
+                </span>
+              </div>
             </div>
           )}
         </>
