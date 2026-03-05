@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+
+# Presentations (keep local only)
+presentations/
 .Python
 build/
 develop-eggs/
@@ -100,3 +103,19 @@ saved_models/
 *.pptx
 docs/Halimat'sRewardcraft.pptx
 presentations/slides/rewardcraft.pptx
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# AI assistant configs
+CLAUDE.md
+GEMINI.md
+.claude/
+
+# Cleanup script
+cleanup.sh

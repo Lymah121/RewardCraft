@@ -73,5 +73,6 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True,  # Auto-reload on file changes during development
+        reload_excludes=[".venv/*", "__pycache__/*", "logs/*"],
         log_level="info"
     )

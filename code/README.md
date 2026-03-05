@@ -102,7 +102,6 @@ code/
 │   └── package.json
 │
 └── docs/             # Implementation guides
-    ├── README_FOR_SONNET.md
     ├── IMPLEMENTATION_PLAN.md
     ├── GAME_RULES_SIMPLIFIED.md
     ├── Q_LEARNING_IMPLEMENTATION.md
@@ -237,11 +236,9 @@ This implementation includes everything needed for the basic educational experie
 ## 📚 Documentation
 
 - **For Developers**: See individual README files in `backend/` and `frontend/`
-- **For AI Assistants**: See `docs/README_FOR_SONNET.md`
 - **Game Rules**: See `docs/GAME_RULES_SIMPLIFIED.md`
 - **Q-Learning**: See `docs/Q_LEARNING_IMPLEMENTATION.md`
 - **API Spec**: See `docs/API_SPECIFICATION.md`
-- **Progress**: See `PROGRESS.md`
 
 ## 🔮 Future Enhancements (Phase 2+)
 

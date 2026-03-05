@@ -9,6 +9,5 @@ python-multipart==0.0.20
 # WebSocket support
 websockets==12.0
 
-# For future enhancements (optional)
-# numpy==1.26.2  # If we add more complex math
-# python-dotenv==1.0.0  # For environment variables
+# Testing
+httpx>=0.25.0

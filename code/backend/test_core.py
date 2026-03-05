@@ -211,10 +211,6 @@ if __name__ == "__main__":
 
         print("=" * 50)
         print("✅ ALL TESTS PASSED! Core components are working correctly.")
-        print("\nNext steps:")
-        print("  1. Create FastAPI backend")
-        print("  2. Add WebSocket support")
-        print("  3. Build React frontend")
 
     except Exception as e:
         print(f"\n❌ TEST FAILED: {e}")
