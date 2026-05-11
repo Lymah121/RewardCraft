@@ -21,14 +21,15 @@
 
 body {
   @apply bg-cyber-black text-gray-100 font-sans antialiased;
-  min-width: 1280px;
+  /* Removed hard min-width: 1280px — layout gracefully scrolls instead of breaking */
   min-height: 100vh;
+  overflow-x: auto;
 }
 
 /* Custom Scrollbar for Cyberpunk feel */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -36,7 +37,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-cyber-gray rounded hover:bg-neon-blue transition-colors;
+  @apply bg-cyber-gray rounded-full;
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-neon-blue;
 }
 
 /* Glassmorphism Utility */
@@ -48,3 +54,93 @@ body {
   @apply border border-neon-blue shadow-neon-blue;
 }
 
+/* ── Modal Entry Animation ──────────────────────────────── */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-in {
+  animation: modal-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Backdrop Blur Fade ─────────────────────────────────── */
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-overlay-in {
+  animation: overlay-in 0.18s ease forwards;
+}
+
+/* ── Neon Pulse Glow ────────────────────────────────────── */
+@keyframes neon-pulse {
+  0%, 100% { box-shadow: 0 0 4px #06b6d4, 0 0 8px #06b6d4; }
+  50%       { box-shadow: 0 0 10px #06b6d4, 0 0 20px #06b6d4, 0 0 40px #06b6d4; }
+}
+
+.animate-neon-pulse {
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+/* ── Scan Line Texture (optional overlay for panels) ─────── */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ── Custom Scrollbar Utility (used across all panel components) ── */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.8); /* cyber-gray */
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #06b6d4; /* neon-blue */
+}
+
+/* ── Fade In Animation (used by AgentManager notifications) ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease forwards;
+}
+
+/* ── Training Active Glow (Start button when training) ── */
+@keyframes training-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.2); }
+}
+
+.animate-training-pulse {
+  animation: training-pulse 1.5s ease-in-out infinite;
+}

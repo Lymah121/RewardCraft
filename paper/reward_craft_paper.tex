@@ -40,6 +40,17 @@ A persistent challenge is that ethical and societal impacts are often taught as 
 
 We address these gaps with \emph{RewardCraft}, an educational tower defense game where students act as AI trainers by designing and iterating on reward functions for a Q-learning agent \cite{watkins1992,sutton2018}. RewardCraft is intentionally designed to provoke \emph{specification gaming}---a form of reward hacking in which an agent exploits loopholes in the reward definition to maximize measured performance while failing the intended goal \cite{krakovna2020,everitt2017corr}. Experiencing this failure mode firsthand makes the alignment problem concrete: students can see that “doing what we reward” is not equivalent to “doing what we want.”
 
+\subsection{Problem Statement}
+The core problem this work addresses is the \emph{disconnect between how AI ethics is taught and how it is actually produced in technical practice}. Specifically, three interrelated problems motivate RewardCraft:
+
+\begin{enumerate}
+  \item \textbf{Passive AI education.} Most K--12 AI tools position students as \emph{consumers} of pre-trained models. Students observe AI behavior but do not control the value choices that produce it, leaving the connection between design decisions and ethical outcomes invisible.
+  \item \textbf{Absent reward-design literacy.} Reinforcement learning---the paradigm underlying recommendation engines, game AI, robotics, and language model fine-tuning---is rarely taught before college, and when it is, instruction focuses on algorithm mechanics rather than on \emph{objective specification} as a socio-technical decision.
+  \item \textbf{Ethics as an add-on.} AI ethics curricula typically introduce bias, fairness, and harm as separate topics, after the technical work is done. This separation obscures the central insight that ethical failures in deployed AI systems are often the \emph{correct and intended outcome} of a misspecified reward or objective function---not a bug, but a design flaw.
+\end{enumerate}
+
+\noindent These three problems combine to produce high school graduates who can \emph{use} AI tools but cannot reason about \emph{why} those tools behave the way they do or \emph{how} to change that behavior responsibly.
+
 \subsection{Contributions}
 This paper makes four contributions:
 
@@ -50,8 +61,8 @@ This paper makes four contributions:
   \item \textbf{A study design for evaluating learning and transfer} grounded in AI literacy competencies \cite{long2020} and alignment-oriented curricular work \cite{williams2022}.
 \end{itemize}
 
-\section{Related Work}
-RewardCraft is situated at the intersection of K--12 AI education tools, educational RL experiences, ethics curricula, and constructionist learning.
+\section{Related Work: Existing Solutions and Their Limitations}
+Several lines of prior work address parts of the problem described above. We review each and identify the residual gap that motivates RewardCraft.
 
 \subsection{AI Education Tools for K--12}
 A growing ecosystem of “teachable machine” systems lowers barriers to creating ML models (e.g., Google’s Teachable Machine \cite{carney2020}), often by allowing learners to collect examples and train classifiers. These tools effectively support intuitive understanding of data, labels, and evaluation, and they align with participatory approaches where students learn by creating artifacts \cite{vartiainen2021,dwivedi2021}. Systems such as the \emph{Cognimates} platform similarly integrate training and programming to help children reason about AI behavior and agency \cite{druga2021}. Additional work emphasizes how embodied or domain-relevant contexts can support “making with AI” and student creativity in model-building \cite{zimmermann2019}.
@@ -61,13 +72,45 @@ However, much of the K--12 tooling focuses on supervised learning pipelines and 
 \subsection{Reinforcement Learning Education and Visualization}
 Several educational tools introduce RL through games, robotics, or interactive simulations. ARtonomous uses virtual robotics and augmented reality to make RL behavior visible to middle school students \cite{dietz2022}. TrainYourSnakeAI provides an approachable RL teaching tool for younger learners \cite{hinojosa2025}. PlayGrid explores accessible interfaces for teaching Q-learning concepts \cite{quiloan2023}. In parallel, game-based AI literacy projects such as LearnML/ArtBot demonstrate how narrative and gameplay can motivate ML learning and reflection \cite{voulgari2021,zammit2022}.
 
-RewardCraft builds on this tradition but differs in two design priorities: (i) \emph{reward function design} is the primary learner-controlled artifact (not merely a parameter), and (ii) the system explicitly uses \emph{specification gaming} as an instructional mechanism to bridge RL concepts and alignment/ethics.
+RewardCraft builds on this tradition but differs in two design priorities: (i) \emph{reward function design} is the primary learner-controlled artifact (not merely a parameter), and (ii) the system explicitly uses \emph{specification gaming} as an instructional mechanism to bridge RL concepts and alignment/ethics. Table~\ref{tab:compare} summarizes key distinctions across comparable tools.
+
+\begin{table*}[t]
+\caption{Feature comparison of RewardCraft against related educational RL tools.}
+\label{tab:compare}
+\centering
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Feature} & \textbf{RewardCraft} & \textbf{ARtonomous} \cite{dietz2022} & \textbf{TrainYourSnakeAI} \cite{hinojosa2025} & \textbf{PlayGrid} \cite{quiloan2023} \\
+\midrule
+Target age group              & 14--18 (HS)     & 11--14 (MS)       & 11--14 (MS)       & 12--18 (MS/HS)  \\
+RL algorithm exposed          & Tabular Q-learn & Q-learning (AR)   & Q-learning        & Q-learning      \\
+Reward function design        & \textbf{Primary artifact} & Fixed reward    & Preset only       & Partial sliders \\
+Specification gaming pedagogy & \textbf{Yes}    & No                & No                & No              \\
+Real-time Q-table heatmap     & \textbf{Yes}    & No                & No                & Limited         \\
+Post-training reflection tool & \textbf{Yes}    & No                & No                & No              \\
+Research data logging         & \textbf{SQLite + CSV}& No           & No                & No              \\
+Guided onboarding tutorial    & \textbf{Yes (8 slides)} & Facilitator & Facilitator       & Partial         \\
+\bottomrule
+\end{tabular}
+\end{table*}
 
 \subsection{AI Ethics Education and Alignment}
 Recent curricula integrate ethics into AI instruction by addressing fairness, accountability, transparency, and societal impacts \cite{williams2022}. AI safety and alignment research highlights that objective specification is a core technical problem: reward misspecification can yield unsafe or unintended behavior \cite{amodei2016,krakovna2020}. Formal analyses of reward corruption and reward-channel tampering further illustrate how agents may maximize observed reward while diverging from intended outcomes \cite{everitt2017corr}. These themes motivate pedagogical approaches that treat objectives as design choices with ethical implications, rather than as neutral engineering details.
 
 \subsection{Constructionism and Game-Based Learning}
 Constructionism emphasizes learning through making, iteration, and debugging \cite{papert1980,kafai2014}. Games can support these practices by providing immediate feedback loops, intrinsic goals, and opportunities for experimentation \cite{gee2003,squire2011}. Meta-analytic evidence suggests serious games can improve learning outcomes and motivation when well-aligned with instructional goals \cite{wouters2013}. RewardCraft combines constructionist making (designing the reward function) with a game-based context where failures are safe and informative.
+
+\subsection{The Gap: Why Existing Solutions Are Insufficient}
+Taken together, prior tools address RL education and game-based learning but leave three critical gaps that RewardCraft is designed to fill:
+
+\begin{enumerate}
+  \item \textbf{Reward design is not the primary artifact.} In ARtonomous, TrainYourSnakeAI, and PlayGrid, reward functions are either fixed by the system or only partially exposed (e.g., preset selection, minor sliders). Students observe learning but do not \emph{author} the objective. RewardCraft makes the reward function the student's central creative act.
+  \item \textbf{Specification gaming is not intentionally produced.} No existing tool in our review deliberately engineers conditions where the agent succeeds at maximizing reward while failing the intended goal. This is the most concrete and memorable way to teach AI alignment, yet it is absent from current K--12 tooling.
+  \item \textbf{No structured reflection or data collection.} Existing tools end when training ends. RewardCraft closes the learning loop with embedded post-training reflection prompts and a backend research database that logs student responses, reward configurations, and episode outcomes---enabling both pedagogical assessment and empirical research on learning.
+\end{enumerate}
+
+\noindent Table~\ref{tab:compare} quantifies these distinctions across comparable tools.
 
 \section{System Design}
 RewardCraft is designed to make the RL training process observable, manipulable, and discussable in a standard classroom period.
@@ -95,12 +138,23 @@ RewardCraft intentionally creates conditions where misaligned rewards lead to co
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.95\linewidth]{figures/spec_gaming.png}
-\caption{Placeholder for a specification gaming trace: reward accumulates while win rate remains low under a ``Greedy Killer'' reward setting.}
+\caption{Specification gaming trace across three preset reward configurations (300 training episodes each). Panel~(a) shows smoothed episode reward; panel~(b) shows smoothed win rate. The \emph{Gold Hoarder} preset (penalizes spending, rewards saving) accumulates 10$\times$ higher episode reward than \emph{Balanced} yet achieves a near-zero win rate---the agent optimizes the measurable reward signal while failing the intended objective. \emph{Balanced} and \emph{Greedy Killer} converge to similar win rates, but with qualitatively different learned policies visible in Q-table analysis.}
 \label{fig:specgaming}
 \end{figure}
 
 \subsection{System Architecture}
 RewardCraft is implemented as a web application to reduce deployment friction in classrooms (Fig.~\ref{fig:arch}). A React frontend renders (i) the game canvas, (ii) a Q-table heatmap, and (iii) a reward designer panel with controls. A Python/FastAPI backend runs training episodes and streams live updates over WebSockets. The architecture supports low-latency visualization of learning dynamics during classroom demonstrations and student exploration.
+
+\subsection{Student Feedback Loop}
+Closing the learning cycle requires more than observation---students must be prompted to articulate what they saw and connect it to broader implications. RewardCraft implements a structured \emph{feedback loop} with three components:
+
+\begin{enumerate}
+  \item \textbf{In-game reward breakdown panel.} During training, a real-time panel itemizes every reward event (e.g., ``+10 enemy defeated,'' ``$-$50 enemy reached base'') at each step, making the agent's incentive structure transparent rather than implied.
+  \item \textbf{Post-training reflection modal.} When training completes, a modal presents two structured prompts: (a) \emph{``Did your agent do anything unexpected? Describe any unintended behaviors.''} and (b) \emph{``Can you think of a real-world AI system where a similar reward mismatch might cause problems?''} These prompts are aligned with RQ2 and RQ3 (see Section~\ref{sec:eval}) and encourage transfer from the game context to real AI systems.
+  \item \textbf{Persistent research database.} Student names, reward configurations, training outcomes, and reflection responses are logged to a server-side SQLite database and are exportable as CSV files via REST endpoints (\texttt{/api/research/reflections/csv}, \texttt{/api/research/sessions/csv}). This enables instructors to review responses after class and provides the data infrastructure for the planned classroom study.
+\end{enumerate}
+
+\noindent This feedback loop is absent from all comparable tools reviewed in Section~2 and is a key differentiating contribution of RewardCraft.
 
 \begin{figure}[t]
 \centering
@@ -113,7 +167,7 @@ RewardCraft is implemented as a web application to reduce deployment friction in
 RewardCraft uses tabular Q-learning for interpretability and fast training within minutes \cite{watkins1992,sutton2018}.
 
 \subsection{State Space Design (486 States)}
-The state abstraction is designed to be small enough for rapid learning but rich enough to produce meaningful trade-offs. The current implementation discretizes the game into 486 states derived from six factors (Table~\ref{tab:state}): tower coverage in three regions, enemy pressure, gold availability, and wave progress. This yields a tractable Q-table that students can inspect and discuss.
+The state abstraction is designed to be small enough for rapid learning but rich enough to produce meaningful trade-offs. The current implementation discretizes the game into 486 states derived from six factors (Table~\ref{tab:state}): gold availability, enemy presence, tower count, wave progress, threat level from enemy composition, and whether a slow tower is deployed. This yields a tractable Q-table that students can inspect and discuss.
 
 \begin{table}[t]
 \caption{State factorization yielding 486 discrete states.}
@@ -123,12 +177,12 @@ The state abstraction is designed to be small enough for rapid learning but rich
 \toprule
 \textbf{Factor} & \textbf{Values} & \textbf{Interpretation} \\
 \midrule
-Left towers & 0, 1, 2+ & Coverage near spawn \\
-Center towers & 0, 1, 2+ & Mid-path control \\
-Right towers & 0, 1, 2+ & Base defense \\
-Enemy count & Low, Med, High & Current pressure \\
-Gold level & Low, Med, High & Resource constraint \\
-Wave progress & Early, Late & Episode stage \\
+Gold level & 0, 1, 2 & Resource constraint \\
+Enemies on field & 0, 1, 2 & Enemy presence \\
+Towers built & 0, 1, 2 & Base defense \\
+Wave progress & 0, 1, 2 & Episode stage \\
+Threat level & 0, 1, 2 & Current pressure \\
+Has slow tower & 0, 1 & Utility coverage \\
 \midrule
 \multicolumn{3}{l}{Total: $3 \times 3 \times 3 \times 3 \times 3 \times 2 = 486$ states.} \\
 \bottomrule
@@ -195,7 +249,7 @@ These features are designed to support the transparency and control emphasized i
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.95\linewidth]{figures/q_heatmap.png}
-\caption{Placeholder for Q-table heatmap snapshots showing learning progression.}
+\caption{Q-table heatmap after 300 training episodes (\emph{Balanced} preset). Rows represent the 30 most-visited game states (labeled by their six feature values: Gold, Enemies, Towers, Wave, Threat, Slow-tower). Columns represent the 12 available actions. Green cells indicate high Q-values (preferred actions); yellow cells indicate near-zero values (rarely visited state-action pairs). Stars~(\textbf{\large$\star$}) mark the best action per state. The heatmap shows that in no-enemy early-game states the agent has learned to \emph{Save} gold rather than build---a rational but potentially misaligned strategy students are asked to critique.}
 \label{fig:qheat}
 \end{figure}
 
@@ -252,7 +306,7 @@ Iterative refinement of artifacts & Constructionism \cite{papert1980,kafai2014} 
 \end{tabular}
 \end{table}
 
-\section{Preliminary Evaluation}
+\section{Preliminary Evaluation}\label{sec:eval}
 Because RewardCraft is intended for authentic classroom use, evaluation must address both conceptual learning and transfer to real-world reasoning about incentives.
 
 \subsection{Formative Evaluation (Ongoing)}

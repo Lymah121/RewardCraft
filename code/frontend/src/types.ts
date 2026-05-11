@@ -150,6 +150,7 @@ export interface WSEpisodeEnd extends WSMessage {
 
 export interface WSTrainingComplete extends WSMessage {
   type: 'training_complete';
+  session_uuid: string;
   summary: {
     total_episodes: number;
     episode_rewards: number[];
@@ -167,4 +168,5 @@ export interface WSCommand {
   learning_rate?: number;
   discount_factor?: number;
   epsilon?: number;
+  epsilon_decay?: number;
 }

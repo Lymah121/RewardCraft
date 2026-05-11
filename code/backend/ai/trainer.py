@@ -16,6 +16,7 @@ from ai.q_learning import QLearningAgent
 from ai.reward_function import RewardCalculator
 from game.engine import TowerDefenseGame
 from game.state_encoder import StateEncoder
+from api import database
 
 
 class TrainingCoordinator:
@@ -61,6 +62,7 @@ class TrainingCoordinator:
         # Diagnostics
         self.action_trace: List[str] = []
         self.logger = logging.getLogger("training")
+        self.session_uuid: Optional[str] = None
 
     def train(
         self,
@@ -97,6 +99,21 @@ class TrainingCoordinator:
         self.is_training = True
         self.total_episodes = num_episodes
 
+        # Log session start
+        hyperparameters = {
+            'speed_multiplier': speed_multiplier,
+            'epsilon_decay': epsilon_decay,
+            'min_epsilon': min_epsilon,
+            'learning_rate': self.agent.learning_rate,
+            'discount_factor': self.agent.discount_factor
+        }
+        self.session_uuid = database.log_session_start(
+            self.reward_calculator.config,
+            hyperparameters,
+            self.state_encoder.get_state_space_size(),
+            num_episodes
+        )
+
         for episode in range(num_episodes):
             if not self.is_training:  # Allow stopping mid-training
                 break
@@ -129,6 +146,17 @@ class TrainingCoordinator:
             # Persist episode diagnostics to log for post-mortem analysis
             episode_result["episode"] = self.current_episode
             self._log_episode_summary(episode_result)
+            
+            # Persist to local sqlite db
+            if self.session_uuid:
+                database.log_episode(
+                    session_uuid=self.session_uuid,
+                    episode_num=self.current_episode,
+                    total_reward=episode_result['total_reward'],
+                    victory=episode_result['victory'],
+                    steps=episode_result['steps'],
+                    final_wave=episode_result.get('final_wave', 0)
+                )
 
             # Decay exploration after each episode
             self.agent.decay_epsilon(decay_rate=epsilon_decay, min_epsilon=min_epsilon)

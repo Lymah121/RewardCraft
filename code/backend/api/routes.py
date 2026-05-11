@@ -7,24 +7,44 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 import sys
+import logging
 from pathlib import Path
+from fastapi.responses import PlainTextResponse
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from ai import QLearningAgent, RewardCalculator, TrainingCoordinator, DEFAULT_ACTION_NAMES
 from game import TowerDefenseGame, StateEncoder
+from api import database
+
+logger = logging.getLogger(__name__)
 
 # Request/Response models
 class RewardConfig(BaseModel):
     """Student's reward configuration"""
-    enemy_defeated: int = 10
-    enemy_reached_base: int = -50
-    tower_built: int = -2
-    gold_saved: int = 1
-    wave_completed: int = 20
+    # Phase 1 & 2 basic rewards
+    enemy_defeated: float = 10.0
+    enemy_reached_base: float = -50.0
+    tower_built: float = -2.0
+    gold_saved: float = 1.0
+    wave_completed: float = 20.0
+    
+    # Phase 3 specific rewards explicitly needed
+    boss_defeated: float = 50.0
+    tower_upgraded: float = -5.0
+    special_tower_built: float = -10.0
     game_won: int = 100
     game_lost: int = -100
+
+
+class ReflectionRequest(BaseModel):
+    """Student post-training reflection submission"""
+    session_uuid: str
+    student_name: str
+    preset_name: str
+    win_rate: float
+    response: str
 
 
 class TrainingRequest(BaseModel):
@@ -90,7 +110,7 @@ def _initialize_components(reward_config: Optional[RewardConfig] = None):
 
     _state_encoder = StateEncoder()
 
-    reward_dict = reward_config.dict() if reward_config else {}
+    reward_dict = reward_config.model_dump() if reward_config else {}
     _reward_calculator = RewardCalculator(reward_dict)
 
 
@@ -111,7 +131,7 @@ async def initialize(reward_config: Optional[RewardConfig] = None):
         "message": "Game and AI components ready",
         "state_space_size": _state_encoder.get_state_space_size(),
         "actions": _agent.action_names,
-        "reward_config": reward_config.dict() if reward_config else _reward_calculator.config
+        "reward_config": reward_config.model_dump() if reward_config else _reward_calculator.config
     }
 
 
@@ -186,11 +206,11 @@ async def update_reward_config(reward_config: RewardConfig):
     if _reward_calculator is None:
         _initialize_components(reward_config)
     else:
-        _reward_calculator.update_config(reward_config.dict())
+        logger.info(f"Setting AI configs: reward={reward_config.model_dump()}")
+        _reward_calculator.update_config(reward_config.model_dump())
 
     return {
-        "status": "updated",
-        "new_config": _reward_calculator.config,
+        "status": "success", 
         "message": "Reward configuration updated. Start new training to see effects."
     }
 
@@ -247,9 +267,8 @@ async def get_info():
 
     return {
         "game": {
-            "grid_size": "10x10",
-            "path": "Row 5",
-            "waves": 3,
+            "grid_size": {"width": 10, "height": 10},
+            "waves": 5,
             "starting_gold": 100,
             "starting_lives": 20
         },
@@ -272,3 +291,35 @@ async def health_check():
         "status": "healthy",
         "initialized": _agent is not None
     }
+
+# --- Research Exports ---
+
+@router.get("/research/sessions/csv", response_class=PlainTextResponse)
+async def get_sessions_csv():
+    """Download the sessions log as CSV"""
+    return database.get_sessions_csv()
+
+@router.get("/research/episodes/csv", response_class=PlainTextResponse)
+async def get_episodes_csv():
+    """Download the full episodes log as CSV"""
+    return database.get_episodes_csv()
+
+@router.post("/research/reflection")
+async def save_reflection(req: ReflectionRequest):
+    """Save a student's post-training reflection response to the database."""
+    try:
+        database.log_reflection(
+            session_uuid=req.session_uuid,
+            student_name=req.student_name,
+            preset_name=req.preset_name,
+            win_rate=req.win_rate,
+            response=req.response,
+        )
+        return {"status": "saved", "message": "Reflection logged successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/research/reflections/csv", response_class=PlainTextResponse)
+async def get_reflections_csv():
+    """Download all student reflection responses as CSV for qualitative analysis."""
+    return database.get_reflections_csv()

@@ -8,9 +8,9 @@ An educational tool that teaches **Reinforcement Learning** to high school stude
 
 ## 📦 What's Included
 
-- **Tower Defense Game**: Simple 10x10 grid with 3 waves
-- **Q-Learning AI**: Tabular Q-learning with 162 discrete states
-- **Reward Designer**: Students configure 5 reward parameters
+- **Tower Defense Game**: Simple 10x10 grid with 5 waves
+- **Q-Learning AI**: Tabular Q-learning with 486 discrete states
+- **Reward Designer**: Students configure full reward parameters including upgrades
 - **Q-Table Heatmap**: Real-time visualization of AI learning
 - **Training System**: 100-episode training sessions with live updates
 
@@ -114,7 +114,7 @@ code/
 
 - **Grid**: 10×10 tiles
 - **Path**: Row 5 (left to right)
-- **Waves**: 3 waves with 5, 7, and 10 enemies
+- **Waves**: 5 waves introducing new enemy types (fast, tanky, boss)
 - **Resources**: Start with 100 gold, 20 lives
 - **Tower**: Costs 50 gold, does 10 damage, range 2
 - **Enemy**: 30 HP, moves 1 tile/second, worth 20 gold
@@ -122,14 +122,18 @@ code/
 ### AI System
 
 - **Algorithm**: Tabular Q-Learning
-- **State Space**: 162 states (3×3×3×3×2)
+- **State Space**: 486 states (3×3×3×3×3×2)
   - Gold level: Poor/Okay/Rich
   - Enemies: None/Few/Many
   - Towers: None/Few/Many
   - Wave: Early/Middle/Late
-  - Last action: Success/Fail
-- **Actions**: 5 total
-  - BUILD_LEFT, BUILD_CENTER, BUILD_RIGHT
+  - Threat level: Low/Med/High
+  - Has slow tower: Yes/No
+- **Actions**: 12 total
+  - BUILD_ARCHER (left/center/right)
+  - BUILD_CANNON (left/center/right)
+  - BUILD_SLOW (left/center/right)
+  - UPGRADE (left/center/right)
   - SAVE (do nothing)
   - SELL_OLDEST
 - **Learning Rate**: 0.1
@@ -213,46 +217,31 @@ python test_api.py     # Test REST endpoints
 ### Technical
 
 1. **Deterministic**: Same state + same action = same result
-2. **Small State Space**: Only 162 states (can visualize all)
+2. **Interpretable State Space**: 486 discrete states — small enough to visualize entirely
 3. **No Randomness**: Reproducible results
 4. **Fast Training**: Episodes complete in ~10 seconds each
 5. **Real-time**: WebSocket updates every step
 
-## 🎯 Phase 1 MVP - Complete! ✅
+## 🎯 Phase 3 — Research-Ready Tool ✅
 
-This implementation includes everything needed for the basic educational experience:
+All three phases complete. The tool now supports full empirical data collection for classroom studies:
 
-✅ Complete tower defense game engine
-✅ Q-learning with tabular Q-table
-✅ 162 discrete states (manageable, visualizable)
-✅ Configurable reward system
+✅ Complete tower defense game engine (5 waves, 4 enemy types, 3 tower types)
+✅ Q-learning with 486 discrete states and 12 actions
+✅ Configurable reward system (basic + Phase 3 fields: boss, upgrades, special towers)
 ✅ FastAPI backend with REST + WebSocket
-✅ React frontend with real-time updates
-✅ **Q-table heatmap visualization** (THE KEY COMPONENT)
-✅ Reward designer interface
-✅ Training progress tracking
-✅ All tests passing
+✅ React frontend with real-time updates and cyberpunk UI
+✅ **Q-table heatmap** — live visualization of AI learning
+✅ Reward designer with Simple Mode (binary) + Advanced Mode (numeric sliders)
+✅ Guided onboarding tutorial (8-slide interactive walkthrough)
+✅ Post-training reflection modal with structured research prompts
+✅ SQLite research database — sessions, episodes, reflections tables
+✅ CSV export endpoints for research data analysis (`/api/research/reflections/csv`)
+✅ Agent save/load (localStorage) with JSON export
+✅ Learning curve chart with moving average
+✅ Training hyperparameter controls (episodes, speed, LR, discount, epsilon, decay)
+✅ All TypeScript and Python checks passing
 
-## 📚 Documentation
-
-- **For Developers**: See individual README files in `backend/` and `frontend/`
-- **Game Rules**: See `docs/GAME_RULES_SIMPLIFIED.md`
-- **Q-Learning**: See `docs/Q_LEARNING_IMPLEMENTATION.md`
-- **API Spec**: See `docs/API_SPECIFICATION.md`
-
-## 🔮 Future Enhancements (Phase 2+)
-
-Not included in Phase 1, but possible additions:
-
-- [ ] Episode reward graph over time
-- [ ] Save/load Q-tables
-- [ ] Multiple tower types
-- [ ] Different enemy types
-- [ ] Procedural wave generation
-- [ ] Comparison of different reward configs
-- [ ] Tutorial mode for first-time users
-- [ ] Export Q-table as CSV
-- [ ] Student "missions" (e.g., "Make AI save 200 gold")
 
 ## 👥 Target Audience
 

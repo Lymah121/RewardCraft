@@ -182,7 +182,7 @@ Connect to `ws://localhost:8000/ws/training` for real-time training updates.
 ### Tower Defense Mechanics
 - **Grid**: 10x10
 - **Path**: Row 5 (left to right)
-- **Waves**: 3 waves (5, 7, 10 enemies)
+- **Waves**: 5 waves (Normal, Fast, Tanky mixtures, Boss wave, Final wave)
 - **Starting Resources**: 100 gold, 20 lives
 - **Tower Cost**: 50 gold
 - **Tower Damage**: 10 HP
@@ -191,21 +191,23 @@ Connect to `ws://localhost:8000/ws/training` for real-time training updates.
 - **Enemy Speed**: 1 tile/second
 - **Gold Reward**: 20 per enemy killed
 
-### AI Actions (5 total)
-1. `BUILD_LEFT` - Build tower in columns 1-3
-2. `BUILD_CENTER` - Build tower in columns 4-6
-3. `BUILD_RIGHT` - Build tower in columns 7-8
-4. `SAVE` - Do nothing, save gold
-5. `SELL_OLDEST` - Sell oldest tower for 35 gold
+### AI Actions (12 total)
+1. `BUILD_ARCHER_LEFT` / `BUILD_ARCHER_CENTER` / `BUILD_ARCHER_RIGHT`
+2. `BUILD_CANNON_LEFT` / `BUILD_CANNON_CENTER` / `BUILD_CANNON_RIGHT`
+3. `BUILD_SLOW_LEFT`  / `BUILD_SLOW_CENTER`  / `BUILD_SLOW_RIGHT`
+4. `UPGRADE_LEFT` / `UPGRADE_CENTER` / `UPGRADE_RIGHT`
+5. `SAVE` — Do nothing, save gold
+6. `SELL_OLDEST` — Sell oldest tower for refund
 
 ### State Space
-- **Total States**: 162 (3×3×3×3×2)
+- **Total States**: 486 (3×3×3×3×3×2)
 - **Variables**:
   - Gold level: Poor/Okay/Rich (0-2)
   - Enemies: None/Few/Many (0-2)
   - Towers: None/Few/Many (0-2)
   - Wave: Early/Middle/Late (0-2)
-  - Last action: Failed/Success (0-1)
+  - Threat level: Low/Med/High (0-2)
+  - Has slow tower: No/Yes (0-1)
 
 ### Reward Configuration
 Default rewards (adjustable by students):
@@ -241,7 +243,7 @@ The server runs with auto-reload enabled during development. Any code changes wi
 ### Why This Design?
 
 1. **Tabular Q-Learning**: Simple, interpretable, perfect for education
-2. **Discrete States**: Only 162 states, can visualize all of them
+2. **Interpretable State Space**: 486 discrete states — small enough to visualize entirely
 3. **Deterministic Game**: Same action in same state = same result
 4. **WebSocket Updates**: Real-time visualization of learning
 5. **Configurable Rewards**: Students design AI behavior

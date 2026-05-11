@@ -130,6 +130,7 @@ export const useWebSocket = ({
       learning_rate?: number;
       discount_factor?: number;
       epsilon?: number;
+      epsilon_decay?: number;
     }) => {
       sendCommand({
         command: 'start_training',
@@ -139,6 +140,7 @@ export const useWebSocket = ({
         learning_rate: options.learning_rate,
         discount_factor: options.discount_factor,
         epsilon: options.epsilon,
+        epsilon_decay: options.epsilon_decay,
       });
     },
     [sendCommand]

@@ -212,10 +212,11 @@ async def run_training_async(num_episodes: int, speed_multiplier: float, epsilon
             min_epsilon=min_epsilon
         )
 
-        # Send final summary
+        # Send final summary (include session_uuid for reflection linkage)
         await manager.broadcast({
             "type": "training_complete",
-            "summary": summary
+            "summary": summary,
+            "session_uuid": _current_trainer.session_uuid or ""
         })
 
     except Exception as e:

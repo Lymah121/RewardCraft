@@ -64,6 +64,7 @@ export const RewardDesigner = ({
   const [hasChanges, setHasChanges] = useState(false);
   const [activePresetTooltip, setActivePresetTooltip] = useState<string | null>(null);
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
+  const [isSimpleMode, setIsSimpleMode] = useState(false);
 
   useEffect(() => {
     setRewards(initialConfig);
@@ -111,13 +112,29 @@ export const RewardDesigner = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="mb-4">
-        <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">
-          <span className="text-2xl">🎨</span> Reward Designer
-        </h3>
-        <p className="text-sm text-gray-400 mt-1">
-          Shape your AI's behavior by adjusting rewards
-        </p>
+      <div className="mb-4 flex justify-between items-start">
+        <div>
+          <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">
+            <span className="text-2xl">🎨</span> Reward Designer
+          </h3>
+          <p className="text-sm text-gray-400 mt-1">
+            Shape your AI's behavior by adjusting rewards
+          </p>
+        </div>
+        <div className="flex bg-gray-800 rounded-lg p-1 border border-white/10">
+          <button 
+            onClick={() => setIsSimpleMode(true)}
+            className={`px-3 py-1 text-xs font-bold rounded transition-colors ${isSimpleMode ? 'bg-neon-blue text-black' : 'text-gray-400 hover:text-white'}`}
+          >
+            Simple
+          </button>
+          <button 
+            onClick={() => setIsSimpleMode(false)}
+            className={`px-3 py-1 text-xs font-bold rounded transition-colors ${!isSimpleMode ? 'bg-neon-purple text-white' : 'text-gray-400 hover:text-white'}`}
+          >
+            Advanced
+          </button>
+        </div>
       </div>
 
       {/* Presets Section */}
@@ -191,42 +208,68 @@ export const RewardDesigner = ({
                 </span>
               </div>
 
-              <div className="relative h-6 flex items-center">
-                {/* Track Background */}
-                <div className="absolute w-full h-1.5 bg-cyber-dark rounded-full overflow-hidden border border-white/10">
-                  {/* Center Marker */}
-                  <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/20"></div>
+              {isSimpleMode ? (
+                <div className="flex justify-between gap-2 mt-2">
+                  <button 
+                    onClick={() => handleRewardChange(key, -50)}
+                    disabled={disabled}
+                    className={`flex-1 py-1 rounded text-xs font-bold border transition-colors ${value < 0 ? 'bg-neon-red/20 border-neon-red text-neon-red shadow-[0_0_8px_rgba(255,0,60,0.4)]' : 'border-gray-600 text-gray-500 hover:border-gray-400'}`}
+                  >
+                    Punish
+                  </button>
+                  <button 
+                    onClick={() => handleRewardChange(key, 0)}
+                    disabled={disabled}
+                    className={`flex-1 py-1 rounded text-xs font-bold border transition-colors ${value === 0 ? 'bg-gray-600 border-gray-400 text-white' : 'border-gray-600 text-gray-500 hover:border-gray-400'}`}
+                  >
+                    Ignore
+                  </button>
+                  <button 
+                    onClick={() => handleRewardChange(key, 50)}
+                    disabled={disabled}
+                    className={`flex-1 py-1 rounded text-xs font-bold border transition-colors ${value > 0 ? 'bg-neon-green/20 border-neon-green text-neon-green shadow-[0_0_8px_rgba(0,255,102,0.4)]' : 'border-gray-600 text-gray-500 hover:border-gray-400'}`}
+                  >
+                    Reward
+                  </button>
                 </div>
-
-                <input
-                  type="range"
-                  id={key}
-                  min="-100"
-                  max="100"
-                  step="1"
-                  value={value}
-                  onChange={(e) => handleRewardChange(key, parseInt(e.target.value))}
-                  disabled={disabled}
-                  className="w-full h-6 opacity-0 cursor-pointer z-10 absolute"
-                />
-
-                {/* Custom Thumb (Visual Only) */}
-                <div
-                  className={`absolute h-4 w-4 rounded-full shadow-lg transform -translate-x-1/2 pointer-events-none transition-all duration-75
-                    ${getSliderBackground(value)} ${disabled ? 'opacity-50' : 'group-hover:scale-125 group-hover:shadow-[0_0_10px_currentColor]'}
-                  `}
-                  style={{ left: `${((value + 100) / 200) * 100}%` }}
-                ></div>
-
-                {/* Fill Bar */}
-                <div
-                  className={`absolute h-1.5 rounded-full pointer-events-none opacity-50 ${getSliderBackground(value)}`}
-                  style={{
-                    left: value >= 0 ? '50%' : `${((value + 100) / 200) * 100}%`,
-                    width: `${Math.abs(value) / 2}%`
-                  }}
-                ></div>
-              </div>
+              ) : (
+                <div className="relative h-6 flex items-center">
+                  {/* Track Background */}
+                  <div className="absolute w-full h-1.5 bg-cyber-dark rounded-full overflow-hidden border border-white/10">
+                    {/* Center Marker */}
+                    <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/20"></div>
+                  </div>
+  
+                  <input
+                    type="range"
+                    id={key as string}
+                    min="-100"
+                    max="100"
+                    step="1"
+                    value={value}
+                    onChange={(e) => handleRewardChange(key, parseInt(e.target.value))}
+                    disabled={disabled}
+                    className="w-full h-6 opacity-0 cursor-pointer z-10 absolute"
+                  />
+  
+                  {/* Custom Thumb (Visual Only) */}
+                  <div
+                    className={`absolute h-4 w-4 rounded-full shadow-lg transform -translate-x-1/2 pointer-events-none transition-all duration-75
+                      ${getSliderBackground(value)} ${disabled ? 'opacity-50' : 'group-hover:scale-125 group-hover:shadow-[0_0_10px_currentColor]'}
+                    `}
+                    style={{ left: `${((value + 100) / 200) * 100}%` }}
+                  ></div>
+  
+                  {/* Fill Bar */}
+                  <div
+                    className={`absolute h-1.5 rounded-full pointer-events-none opacity-50 ${getSliderBackground(value)}`}
+                    style={{
+                      left: value >= 0 ? '50%' : `${((value + 100) / 200) * 100}%`,
+                      width: `${Math.abs(value) / 2}%`
+                    }}
+                  ></div>
+                </div>
+              )}
 
               <p className="text-xs text-gray-500 mt-1 italic">{info.description}</p>
             </div>

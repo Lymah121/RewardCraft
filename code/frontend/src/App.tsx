@@ -18,7 +18,10 @@ import { LearningCurve } from './components/LearningCurve';
 import { TrainingControls, TrainingSettings } from './components/TrainingControls';
 import { RewardBreakdown } from './components/RewardBreakdown';
 import { AgentManager } from './components/AgentManager';
+import { ReflectionModal } from './components/ReflectionModal';
+import { OnboardingTutorial } from './components/OnboardingTutorial';
 import { useWebSocket } from './hooks/useWebSocket';
+import { REWARD_PRESETS } from './presets';
 import type {
   GameState,
   QTableData,
@@ -55,7 +58,6 @@ function App() {
   const [currentEpisodeReward, setCurrentEpisodeReward] = useState(0);
   const [currentEpisode, setCurrentEpisode] = useState(0);
   const [lastAction, setLastAction] = useState<string | null>(null);
-  const [lastReward, setLastReward] = useState<number | null>(null);
   const [isTrainingActive, setIsTrainingActive] = useState(false);
   const [lastEpisodeOutcome, setLastEpisodeOutcome] = useState<{
     victory: boolean;
@@ -72,6 +74,19 @@ function App() {
     total: number;
   }>>([]);
   const [currentStep, setCurrentStep] = useState(0);
+
+  // Phase 4: Reflection
+  const [showReflection, setShowReflection] = useState(false);
+  const [activePresetName, setActivePresetName] = useState<string>('');
+  const [sessionUuid, setSessionUuid] = useState<string>('');
+  const [studentName, setStudentName] = useState<string>(
+    () => localStorage.getItem('rc_student_name') || ''
+  );
+
+  // Onboarding tutorial — show until localStorage flag is set
+  const [tutorialComplete, setTutorialComplete] = useState<boolean>(
+    () => localStorage.getItem('rc_tutorial_complete') === 'true'
+  );
 
   // Phase 2: Training settings
   const [trainingSettings, setTrainingSettings] = useState<TrainingSettings>({
@@ -106,7 +121,6 @@ function App() {
         setCurrentEpisodeReward(0);
         setCurrentEpisode(message.episode);
         setLastAction(null);
-        setLastReward(null);
         setCurrentStep(0);
         setRecentBreakdowns([]);
         break;
@@ -117,7 +131,6 @@ function App() {
         setCurrentState(stepMsg.state);
         setCurrentAction(stepMsg.action);
         setLastAction(stepMsg.action);
-        setLastReward(stepMsg.reward);
         setCurrentEpisodeReward((prev) => prev + stepMsg.reward);
         setCurrentStep(stepMsg.step);
 
@@ -162,6 +175,16 @@ function App() {
         if (message.summary.q_table) {
           setQTableData(message.summary.q_table);
         }
+        
+        // Capture the session UUID for linking to the reflection response
+        setSessionUuid(message.session_uuid || '');
+
+        // Find matching preset name and trigger reflection
+        const matchingPreset = REWARD_PRESETS.find(p => 
+          JSON.stringify(p.config) === JSON.stringify(rewardConfig)
+        );
+        setActivePresetName(matchingPreset ? matchingPreset.name : 'Custom');
+        setShowReflection(true);
         break;
 
       case 'status':
@@ -243,6 +266,7 @@ function App() {
       learning_rate: trainingSettings.learningRate,
       discount_factor: trainingSettings.discountFactor,
       epsilon: trainingSettings.epsilon,
+      epsilon_decay: trainingSettings.epsilonDecay,
     });
   };
 
@@ -295,6 +319,17 @@ function App() {
 
   return (
     <div className="min-h-screen bg-cyber-black text-gray-100 p-6 font-sans">
+      {/* ── Onboarding Tutorial Overlay ── */}
+      {!tutorialComplete && (
+        <OnboardingTutorial
+          onComplete={() => setTutorialComplete(true)}
+          studentName={studentName}
+          onStudentNameChange={(name) => {
+            setStudentName(name);
+            localStorage.setItem('rc_student_name', name);
+          }}
+        />
+      )}
       <header className="flex justify-between items-center mb-8 glass-panel p-4 neon-border">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
@@ -305,11 +340,24 @@ function App() {
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${isConnected ? 'bg-neon-green/20 text-neon-green border border-neon-green/50' : 'bg-neon-red/20 text-neon-red border border-neon-red/50'
+          <span className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium transition-all ${
+              isConnected
+                ? 'bg-neon-green/20 text-neon-green border border-neon-green/50 animate-neon-pulse'
+                : 'bg-neon-red/20 text-neon-red border border-neon-red/50'
             }`}>
             <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-neon-green animate-pulse' : 'bg-neon-red'}`}></span>
             {isConnected ? 'Connected' : 'Disconnected'}
           </span>
+          <button
+            onClick={() => {
+              localStorage.removeItem('rc_tutorial_complete');
+              setTutorialComplete(false);
+            }}
+            className="px-3 py-1 rounded-full text-xs font-medium text-gray-500 border border-gray-700 hover:border-neon-purple hover:text-neon-purple transition-all"
+            title="Restart the onboarding tutorial"
+          >
+            📖 Tutorial
+          </button>
         </div>
       </header>
 
@@ -421,7 +469,11 @@ function App() {
             <button
               onClick={handleStartTraining}
               disabled={!isInitialized || isTraining || !isConnected}
-              className="w-full py-3 bg-neon-blue hover:bg-cyan-400 text-black font-bold rounded-lg shadow-lg shadow-cyan-500/20 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className={`w-full py-3 font-bold rounded-lg shadow-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                isTraining
+                  ? 'bg-cyber-dark text-neon-blue border border-neon-blue/50 animate-training-pulse cursor-not-allowed'
+                  : 'bg-neon-blue hover:bg-cyan-400 text-black shadow-cyan-500/20'
+              }`}
             >
               {isTraining ? '⏸️ Training in Progress...' : `▶️ Start Training (${trainingSettings.numEpisodes} eps)`}
             </button>
@@ -440,6 +492,19 @@ function App() {
           </div>
         </div>
       </div>
+
+      <ReflectionModal 
+        isOpen={showReflection} 
+        onClose={() => setShowReflection(false)} 
+        presetName={activePresetName}
+        winRate={winRate}
+        sessionUuid={sessionUuid}
+        studentName={studentName}
+        onStudentNameChange={(name) => {
+          setStudentName(name);
+          localStorage.setItem('rc_student_name', name);
+        }}
+      />
     </div>
   );
 }
